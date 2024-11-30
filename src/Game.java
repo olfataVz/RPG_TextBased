@@ -112,7 +112,7 @@ public class Game {
             layeredPane.add(mainTextPanel, Integer.valueOf(1));
         
             mainTextArea = new JTextArea("\tWelcome to Inersia" 
-                                       + "\n====================================" 
+                                       + "\n===================================" 
                                        + "\nPlease Insert Your Name:");
             mainTextArea.setOpaque(false);
             mainTextArea.setForeground(Color.black);
@@ -135,7 +135,7 @@ public class Game {
             confirmButton.setBounds(515, 290, 100, 30); 
             mainTextPanel.add(confirmButton);
 
-            JButton nextButton = new JButton("Next >>");
+            JButton nextButton = new JButton("Next");
             nextButton.setFont(inputText); 
             nextButton.setBounds(515, 290, 100, 30);
             nextButton.setVisible(false);
@@ -177,7 +177,7 @@ public class Game {
                         mainTextPanel.remove(nameField);
                         mainTextPanel.remove(confirmButton);
                         mainTextArea.setText("\tWelcome to Inersia"
-                                           + "\n===================================="
+                                           + "\n==================================="
                                            + "\nPlayer " + playerName 
                                            + "\nYour Base HP is " + hp + " and ATK is " + atk);
                         nextButton.setVisible(true); 
