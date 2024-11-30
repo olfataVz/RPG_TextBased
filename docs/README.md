@@ -12,3 +12,4 @@
 - Pencarian Assets untuk animasi
 - Implementasi Animasi
 - Insert Driver JDBC
+- merapihkan tampilan pada GUI

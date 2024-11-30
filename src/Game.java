@@ -194,7 +194,7 @@ public class Game {
                 mainTextPanel.remove(nameField);
                 mainTextPanel.remove(confirmButton);
                 mainTextArea.setBounds(0, 0, 1050, 120); 
-                mainTextArea.setText("Player: " + playerName + "\t\t\t\t\tHP: " + hp + " | ATK: " + atk);
+                mainTextArea.setText("\tPlayer: " + playerName + "\t\t\t\tHP: " + hp + " | ATK: " + atk);
                 choice1.setVisible(true);
                 choice2.setVisible(true);
                 choice3.setVisible(true);
