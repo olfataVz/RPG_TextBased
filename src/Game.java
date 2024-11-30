@@ -215,7 +215,7 @@ public class Game {
                 slimePanel.add(slimeLabel);
         
                 // Load animasi Idle
-                idleFrames = loadAnimationFrames("img/slime/Idle", "idle", 3);
+                idleFrames = loadAnimationFrames("img/slime/Idle", "idle", 6);
         
                 // Timer untuk mengganti frame
                 frameIndex = 0;
