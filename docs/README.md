@@ -19,3 +19,8 @@
 ### 3. Sabtu, 9 November 2024
 
 - Pembuatan choice button
+
+### 4. Sabtu, 30 November
+
+- Pencarian Assets untuk animasi
+- Implementasi Animasi
