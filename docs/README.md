@@ -13,3 +13,10 @@
 - Implementasi Animasi
 - Insert Driver JDBC
 - merapihkan tampilan pada GUI
+
+## Session 2 (1 - 4 Desember 2024)
+### 1 Desember
+---
+### 2 Desember
+- Olfa [Assets/slime]: Pencarian animasi berjalan untuk slime
+- Olfa [Class/Game]: Pembuatan method untuk implementasi animasi attack, walk_right, dan walk_left untuk slime
