@@ -18,7 +18,7 @@ public class Game {
     JLabel background, titleLogoLabel, slimeLabel, backgroundText;
     JPanel startButtonPanel, exitButtonPanel, mainTextPanel, slimePanel;
     JButton startButton, exitButton, choice1, choice2, choice3, choice4;
-    JTextArea mainTextArea;
+    JTextArea mainTextArea, mainTextLabel;
 
     // Timer untuk animasi
     Timer animationTimer;
@@ -250,7 +250,8 @@ public class Game {
                 mainTextArea.setText("  Player: " + playerName + "\t\t\t\t     HP: " + hp + " | ATK: " + atk);
                 
                 // Add a new JTextArea for synopsys
-                JTextArea mainTextLabel = new JTextArea("Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss.");
+                String sinopsis = "Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss.";
+                mainTextLabel = new JTextArea(sinopsis);
                 mainTextLabel.setFont(gameFont);
                 mainTextLabel.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
                 mainTextLabel.setBounds(140, 150, 900, 100); // Set posisi dan ukuran sesuai kebutuhan
@@ -260,18 +261,18 @@ public class Game {
                 mainTextLabel.setEditable(false);
                 layeredPane.add(mainTextLabel, Integer.valueOf(2)); // Add with a higher z-index
                                 
-                    displayTextWithDelay("Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss.", mainTextLabel, 50, new Runnable() {
-                        @Override
-                        public void run() {
-                            // nextButton.setVisible(true); // Tampilkan tombol setelah teks selesai
-                        }
-                    });
+                displayTextWithDelay(sinopsis, mainTextLabel, 50, new Runnable() {
+                    @Override
+                    public void run() {
+                     
+                        choice1.setVisible(true);
+                        choice2.setVisible(true);
+                        choice3.setVisible(true);
+                        choice4.setVisible(true);
+                    }
+                });
 
                 
-                choice1.setVisible(true);
-                choice2.setVisible(true);
-                choice3.setVisible(true);
-                choice4.setVisible(true);
             }
         });
 
@@ -330,6 +331,7 @@ public class Game {
 
     private void playIdleAnimation() {
         backgroundText.setVisible(false);
+        mainTextLabel.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(150, e -> {
@@ -341,6 +343,7 @@ public class Game {
 
     private void playWalkLeftAnimation() {
         backgroundText.setVisible(false);
+        mainTextLabel.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(100, e -> {
@@ -359,6 +362,7 @@ public class Game {
 
     private void playAttackAnimation() {
         backgroundText.setVisible(false);
+        mainTextLabel.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(150, e -> {
@@ -375,6 +379,7 @@ public class Game {
 
     private void playWalkRightAnimation() {
         backgroundText.setVisible(false);
+        mainTextLabel.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(100, e -> {
@@ -393,6 +398,7 @@ public class Game {
 
     private void playHurtAnimation() {
         backgroundText.setVisible(false);
+        mainTextLabel.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(200, e -> {
@@ -409,6 +415,7 @@ public class Game {
 
     private void playDeathAnimation () {
         backgroundText.setVisible(false);
+        mainTextLabel.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(200, e -> {
