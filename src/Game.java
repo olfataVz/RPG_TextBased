@@ -23,7 +23,7 @@ public class Game {
     int slimeX = 900, slimeY = 235; // Posisi awal slime
     int slimeWidth = 250, slimeHeight = 250;
 
-    ImageIcon[] idleFrames, walkLeftFrames, attackFrames, walkRightFrames;
+    ImageIcon[] slimeIdleFrames, slimeWalkLeftFrames, slimeAttackFrames, slimeWalkRightFrames, slimeHurtFrames, slimeDeathFrames;
 
     Font sizeText = new Font("Times New Roman", Font.PLAIN, 36); 
     Font normalText = new Font("Times New Roman", Font.BOLD, 24); 
@@ -67,18 +67,27 @@ public class Game {
         exitButtonPanel.setBounds(500, 500, 250, 120);
 
         // Button
-        startButton = new JButton("START");
-        startButton.setFont(sizeText); 
+        ImageIcon startIcon = new ImageIcon("Assets/img/start.png");
+        Image scaledStartIcon = startIcon.getImage().getScaledInstance(180, 75, Image.SCALE_SMOOTH);
+        startButton = new JButton(new ImageIcon(scaledStartIcon));
+        startButton.setBorderPainted(false);
+        startButton.setContentAreaFilled(false);
+        startButton.setFocusPainted(false);
         startButtonPanel.add(startButton);
         startButton.addActionListener(tsHandler);
         layeredPane.add(startButtonPanel, Integer.valueOf(1));
 
-        exitButton = new JButton("EXIT");
-        exitButton.setFont(sizeText); 
+        ImageIcon exitIcon = new ImageIcon("Assets/img/exit.png");
+        Image scaledExitIcon = exitIcon.getImage().getScaledInstance(180, 75, Image.SCALE_SMOOTH);
+        exitButton = new JButton(new ImageIcon(scaledExitIcon));
+        exitButton.setBorderPainted(false);
+        exitButton.setContentAreaFilled(false);
+        exitButton.setFocusPainted(false);
         exitButtonPanel.add(exitButton);
+        exitButton.addActionListener(e -> System.exit(0)); // Fungsi keluar program
         layeredPane.add(exitButtonPanel, Integer.valueOf(1));
 
-        window.add(layeredPane);
+        window.add(layeredPane);    
         window.setVisible(true);
     }
 
@@ -167,19 +176,27 @@ public class Game {
                 if (!playerName.isEmpty()) {
                     hp = 100;
                     atk = 15;
-                    confirmButton.setVisible(false); 
+                    confirmButton.setVisible(false);
                     mainTextPanel.remove(nameField);
+                    nameField.setOpaque(false);
                     mainTextPanel.remove(confirmButton);
-                    mainTextArea.setText("\tWelcome to Inersia"
-                                        + "\n===================================="
-                                        + "\nPlayer " + playerName 
-                                        + "\nYour Base HP is " + hp + " and ATK is " + atk);
-                    nextButton.setVisible(true); 
+        
+                    String fullText = "\tWelcome to Inersia"
+                                    + "\n===================================="
+                                    + "\nPlayer " + playerName
+                                    + "\nYour Base HP is " + hp + " and ATK is " + atk;
+        
+                    displayTextWithDelay(fullText, mainTextArea, 50, new Runnable() {
+                        @Override
+                        public void run() {
+                            nextButton.setVisible(true); // Tampilkan tombol setelah teks selesai
+                        }
+                    });
                 } else {
-                    mainTextArea.setText("Please enter a valid name to proceed.");
+                    displayTextWithDelay("Please enter a valid name to proceed.", mainTextArea, 50, null);
                 }
             }
-        });
+        }); 
         
         nextButton.addActionListener(new ActionListener() {
             @Override
@@ -208,23 +225,53 @@ public class Game {
         // Setup Choices
         choice1.addActionListener(e -> playIdleAnimation());
         choice2.addActionListener(e -> playWalkLeftAnimation());
+        choice3.addActionListener(e -> playHurtAnimation());
+        choice4.addActionListener(e -> playDeathAnimation());
 
         loadAnimations();
     }
 
+    private void displayTextWithDelay(String text, JTextArea textArea, int delay, Runnable onComplete) {
+        SwingWorker<Void, String> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                for (int i = 0; i < text.length(); i++) {
+                    publish(text.substring(0, i + 1)); // Kirim substring terkini
+                    Thread.sleep(delay); // Delay per karakter
+                }
+                return null;
+            }
+    
+            @Override
+            protected void process(java.util.List<String> chunks) {
+                textArea.setText(chunks.get(chunks.size() - 1)); // Tampilkan teks terbaru
+            }
+    
+            @Override
+            protected void done() {
+                if (onComplete != null) {
+                    onComplete.run(); // Panggil aksi selesai (jika ada)
+                }
+            }
+        };
+        worker.execute(); // Jalankan thread
+    }    
+
     private void loadAnimations() {
-        idleFrames = loadAnimationFrames("Assets/slime/Idle", "idle", 6);
-        walkLeftFrames = loadAnimationFrames("Assets/slime/Walk_Left", "walk-L", 8);
-        attackFrames = loadAnimationFrames("Assets/slime/Attack", "attack", 10);
-        walkRightFrames = loadAnimationFrames("Assets/slime/Walk_Right", "walk-R", 8);
+        slimeIdleFrames = loadAnimationFrames("Assets/slime/Idle", "idle", 6);
+        slimeWalkLeftFrames = loadAnimationFrames("Assets/slime/Walk_Left", "walk-L", 16);
+        slimeAttackFrames = loadAnimationFrames("Assets/slime/Attack", "attack", 10);
+        slimeWalkRightFrames = loadAnimationFrames("Assets/slime/Walk_Right", "walk-R", 16);
+        slimeHurtFrames = loadAnimationFrames("Assets/slime/hurt", "hurt", 5);
+        slimeDeathFrames = loadAnimationFrames("Assets/slime/death", "death", 10);
     }
 
     private void playIdleAnimation() {
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(150, e -> {
-            slimeLabel.setIcon(idleFrames[frameIndex]);
-            frameIndex = (frameIndex + 1) % idleFrames.length;
+            slimeLabel.setIcon(slimeIdleFrames[frameIndex]);
+            frameIndex = (frameIndex + 1) % slimeIdleFrames.length;
         });
         animationTimer.start();
     }
@@ -232,10 +279,10 @@ public class Game {
     private void playWalkLeftAnimation() {
         stopCurrentAnimation();
         frameIndex = 0;
-        animationTimer = new Timer(200, e -> {
-            if (frameIndex < walkLeftFrames.length) {
-                slimeLabel.setIcon(walkLeftFrames[frameIndex]);
-                slimeX -= 100;
+        animationTimer = new Timer(100, e -> {
+            if (frameIndex < slimeWalkLeftFrames.length) {
+                slimeLabel.setIcon(slimeWalkLeftFrames[frameIndex]);
+                slimeX -= 50;
                 slimePanel.setBounds(slimeX, slimeY, slimeWidth, slimeHeight);
                 frameIndex++;
             } else {
@@ -249,9 +296,9 @@ public class Game {
     private void playAttackAnimation() {
         stopCurrentAnimation();
         frameIndex = 0;
-        animationTimer = new Timer(200, e -> {
-            if (frameIndex < attackFrames.length) {
-                slimeLabel.setIcon(attackFrames[frameIndex]);
+        animationTimer = new Timer(150, e -> {
+            if (frameIndex < slimeAttackFrames.length) {
+                slimeLabel.setIcon(slimeAttackFrames[frameIndex]);
                 frameIndex++;
             } else {
                 animationTimer.stop();
@@ -264,15 +311,45 @@ public class Game {
     private void playWalkRightAnimation() {
         stopCurrentAnimation();
         frameIndex = 0;
-        animationTimer = new Timer(200, e -> {
-            if (frameIndex < walkRightFrames.length) {
-                slimeLabel.setIcon(walkRightFrames[frameIndex]);
-                slimeX += 100;
+        animationTimer = new Timer(100, e -> {
+            if (frameIndex < slimeWalkRightFrames.length) {
+                slimeLabel.setIcon(slimeWalkRightFrames[frameIndex]);
+                slimeX += 50;
                 slimePanel.setBounds(slimeX, slimeY, slimeWidth, slimeHeight);
                 frameIndex++;
             } else {
                 animationTimer.stop();
                 playIdleAnimation();
+            }
+        });
+        animationTimer.start();
+    }
+
+    private void playHurtAnimation() {
+        stopCurrentAnimation();
+        frameIndex = 0;
+        animationTimer = new Timer(200, e -> {
+            if (frameIndex < slimeHurtFrames.length) {
+                slimeLabel.setIcon(slimeHurtFrames[frameIndex]);
+                frameIndex++;
+            } else { 
+                animationTimer.stop(); 
+                playIdleAnimation();
+            }
+        });
+        animationTimer.start();
+    }
+
+    private void playDeathAnimation () {
+        stopCurrentAnimation();
+        frameIndex = 0;
+        animationTimer = new Timer(200, e -> {
+            if (frameIndex < slimeDeathFrames.length) {
+                slimeLabel.setIcon(slimeDeathFrames[frameIndex]);
+                frameIndex++;
+            } else { 
+                animationTimer.stop(); 
+                slimeLabel.setVisible(false);
             }
         });
         animationTimer.start();
