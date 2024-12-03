@@ -12,7 +12,7 @@ public class Game {
 
     JFrame window;
     JLayeredPane layeredPane;
-    JLabel background, titleLogoLabel, slimeLabel;
+    JLabel background, titleLogoLabel, slimeLabel, backgroundText;
     JPanel startButtonPanel, exitButtonPanel, mainTextPanel, slimePanel;
     JButton startButton, exitButton, choice1, choice2, choice3, choice4;
     JTextArea mainTextArea;
@@ -48,10 +48,17 @@ public class Game {
         layeredPane.setBounds(0, 0, 1251, 700);
 
         ImageIcon bgImage = new ImageIcon("Assets/img/background.png"); 
-        Image scaledImage = bgImage.getImage().getScaledInstance(1251, 700, Image.SCALE_SMOOTH);
-        background = new JLabel(new ImageIcon(scaledImage));
+        Image scaledBg = bgImage.getImage().getScaledInstance(1251, 700, Image.SCALE_SMOOTH);
+        background = new JLabel(new ImageIcon(scaledBg));
         background.setBounds(0, 0, 1251, 700);
         layeredPane.add(background, Integer.valueOf(0));
+
+        ImageIcon bgText = new ImageIcon("Assets/img/Background_text.png"); 
+        Image scaledBgText = bgText.getImage().getScaledInstance(1100, 370, Image.SCALE_SMOOTH);
+        backgroundText = new JLabel(new ImageIcon(scaledBgText));
+        backgroundText.setBounds(70, 100, 1100, 370); 
+        backgroundText.setVisible(false);
+        layeredPane.add(backgroundText, Integer.valueOf(1));
 
         ImageIcon logoImage = new ImageIcon("Assets/img/logo.png"); 
         titleLogoLabel = new JLabel(logoImage);
@@ -109,22 +116,23 @@ public class Game {
     
         // Main text panel settings
         mainTextPanel = new JPanel();
-        mainTextPanel.setBounds(70, 100, 1050, 500); 
+        mainTextPanel.setBounds(70, 75, 1150, 550); 
         mainTextPanel.setBackground(null);
         mainTextPanel.setOpaque(false);
         mainTextPanel.setLayout(null); 
-        layeredPane.add(mainTextPanel, Integer.valueOf(1));
-    
+        layeredPane.add(mainTextPanel, Integer.valueOf(2));
+        backgroundText.setVisible(true);
         mainTextArea = new JTextArea("\tWelcome to Inersia" 
                                     + "\n====================================" 
                                     + "\nPlease Insert Your Name:");
         mainTextArea.setOpaque(false);
-        mainTextArea.setForeground(Color.black);
+        // mainTextArea.setForeground(new Color(210, 180, 140)); // Warna Tan (cokelat muda)
+        mainTextArea.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
         mainTextArea.setFont(normalText);
         mainTextArea.setLineWrap(true);
         mainTextArea.setWrapStyleWord(true);
         mainTextArea.setEditable(false); 
-        mainTextArea.setBounds(300, 120, 500, 120); 
+        mainTextArea.setBounds(300, 75, 500, 120); 
         mainTextPanel.add(mainTextArea);
     
         JTextField nameField = new JTextField();
@@ -147,25 +155,25 @@ public class Game {
 
         choice1 = new JButton("Choice 1");
         choice1.setFont(inputText); 
-        choice1.setBounds(515, 350, 100, 25); // Posisi yang berbeda
+        choice1.setBounds(515, 400, 100, 25); // Posisi yang berbeda
         choice1.setVisible(false);
         mainTextPanel.add(choice1);
 
         choice2 = new JButton("Choice 2");
         choice2.setFont(inputText); 
-        choice2.setBounds(515, 380, 100, 25); // Posisi yang berbeda
+        choice2.setBounds(515, 430, 100, 25); // Posisi yang berbeda
         choice2.setVisible(false);
         mainTextPanel.add(choice2);
 
         choice3 = new JButton("Choice 3");
         choice3.setFont(inputText); 
-        choice3.setBounds(515, 410, 100, 25); // Posisi yang berbeda
+        choice3.setBounds(515, 460, 100, 25); // Posisi yang berbeda
         choice3.setVisible(false);
         mainTextPanel.add(choice3);
 
         choice4 = new JButton("Choice 4");
         choice4.setFont(inputText); 
-        choice4.setBounds(515, 440, 100, 25); // Posisi yang berbeda
+        choice4.setBounds(515, 490, 100, 25); // Posisi yang berbeda
         choice4.setVisible(false);
         mainTextPanel.add(choice4);
 
@@ -204,8 +212,9 @@ public class Game {
                 nextButton.setVisible(false);
                 mainTextPanel.remove(nameField);
                 mainTextPanel.remove(confirmButton);
-                mainTextArea.setBounds(0, 0, 1050, 120); 
-                mainTextArea.setText("Player: " + playerName + "\t\t\t\t\tHP: " + hp + " | ATK: " + atk);
+                mainTextPanel.setBounds(80, 60, 1150, 550); 
+                mainTextArea.setBounds(0, 0, 1050, 100); 
+                mainTextArea.setText("  Player: " + playerName + "\t\t\t\t\t     HP: " + hp + " | ATK: " + atk);
                 choice1.setVisible(true);
                 choice2.setVisible(true);
                 choice3.setVisible(true);
@@ -267,6 +276,7 @@ public class Game {
     }
 
     private void playIdleAnimation() {
+        backgroundText.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(150, e -> {
@@ -277,6 +287,7 @@ public class Game {
     }
 
     private void playWalkLeftAnimation() {
+        backgroundText.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(100, e -> {
@@ -294,6 +305,7 @@ public class Game {
     }
 
     private void playAttackAnimation() {
+        backgroundText.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(150, e -> {
@@ -309,6 +321,7 @@ public class Game {
     }
 
     private void playWalkRightAnimation() {
+        backgroundText.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(100, e -> {
@@ -326,6 +339,7 @@ public class Game {
     }
 
     private void playHurtAnimation() {
+        backgroundText.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(200, e -> {
@@ -341,6 +355,7 @@ public class Game {
     }
 
     private void playDeathAnimation () {
+        backgroundText.setVisible(false);
         stopCurrentAnimation();
         frameIndex = 0;
         animationTimer = new Timer(200, e -> {
