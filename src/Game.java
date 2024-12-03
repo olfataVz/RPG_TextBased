@@ -3,9 +3,9 @@ package src;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.*;
 
 public class Game {
 
@@ -19,18 +19,6 @@ public class Game {
     JPanel startButtonPanel, exitButtonPanel, mainTextPanel, slimePanel;
     JButton startButton, exitButton, choice1, choice2, choice3, choice4;
     JTextArea mainTextArea, mainTextLabel;
-
-    // Timer untuk animasi
-    Timer animationTimer;
-    int frameIndex = 0;
-    int slimeX = 900, slimeY = 235; // Posisi awal slime
-    int slimeWidth = 250, slimeHeight = 250;
-
-    ImageIcon[] slimeIdleFrames, slimeWalkLeftFrames, slimeAttackFrames, slimeWalkRightFrames, slimeHurtFrames, slimeDeathFrames;
-
-    // Font sizeText = new Font("Times New Roman", Font.PLAIN, 36); 
-    // Font normalText = new Font("Times New Roman", Font.BOLD, 24); 
-    // Font inputText = new Font("Times New Roman", Font.PLAIN, 18);
 
     public Game() {
         // Inner Class tsHandler
@@ -47,11 +35,16 @@ public class Game {
                 gameFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(24f);
                 GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
                 ge.registerFont(gameFont);
+                System.out.println("Font loaded successfully.");
             } else {
                 System.out.println("Font file not found at: " + fontFile.getAbsolutePath());
                 gameFont = new Font("Arcade Classic", Font.PLAIN, 24); // Fallback font
             }
-        } catch (FontFormatException | IOException e) { }
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+            gameFont = new Font("Times New Roman", Font.PLAIN, 24); // Fallback font
+            System.out.println("Failed to load custom font, using fallback.");
+        }
 
         TitleScreenHandler tsHandler = new TitleScreenHandler();
 
@@ -119,16 +112,6 @@ public class Game {
         window.setVisible(true);
     }
 
-    // Method untuk memuat frame animasi dari folder
-    private ImageIcon[] loadAnimationFrames(String folderPath, String filePrefix, int frameCount) {
-        ImageIcon[] frames = new ImageIcon[frameCount];
-        for (int i = 0; i < frameCount; i++) {
-            ImageIcon frame = new ImageIcon(folderPath + "/" + filePrefix + (i + 1) + ".png");
-            Image scaledFrame = frame.getImage().getScaledInstance(slimeWidth, slimeHeight, Image.SCALE_SMOOTH);
-            frames[i] = new ImageIcon(scaledFrame);
-        }
-        return frames;
-    }
 
     public void createGameScreen() {
         titleLogoLabel.setVisible(false);
@@ -273,22 +256,14 @@ public class Game {
             }
         });
 
-        // Setup Slime Panel
-        slimePanel = new JPanel();
-        slimePanel.setBounds(slimeX, slimeY, slimeWidth, slimeHeight); 
-        slimePanel.setOpaque(false);
-        layeredPane.add(slimePanel, Integer.valueOf(1));
-
-        slimeLabel = new JLabel();
-        slimePanel.add(slimeLabel);
-
+        Slime slime = new Slime(900, 235, 250, 250, layeredPane, this);
         // Setup Choices
-        choice1.addActionListener(e -> playIdleAnimation());
-        choice2.addActionListener(e -> playWalkLeftAnimation());
-        choice3.addActionListener(e -> playHurtAnimation());
-        choice4.addActionListener(e -> playDeathAnimation());
+        choice1.addActionListener(e -> slime.playIdleAnimation());
+        choice2.addActionListener(e -> slime.playWalkLeftAnimation());
+        choice3.addActionListener(e -> slime.playHurtAnimation());
+        choice4.addActionListener(e -> slime.playDeathAnimation());
 
-        loadAnimations();
+        // loadAnimations();
     }
 
     private void displayTextWithDelay(String text, JTextArea textArea, int delay, Runnable onComplete) {
@@ -316,120 +291,4 @@ public class Game {
         };
         worker.execute(); // Jalankan thread
     }    
-
-    private void loadAnimations() {
-        slimeIdleFrames = loadAnimationFrames("Assets/slime/Idle", "idle", 6);
-        slimeWalkLeftFrames = loadAnimationFrames("Assets/slime/Walk_Left", "walk-L", 16);
-        slimeAttackFrames = loadAnimationFrames("Assets/slime/Attack", "attack", 10);
-        slimeWalkRightFrames = loadAnimationFrames("Assets/slime/Walk_Right", "walk-R", 16);
-        slimeHurtFrames = loadAnimationFrames("Assets/slime/hurt", "hurt", 5);
-        slimeDeathFrames = loadAnimationFrames("Assets/slime/death", "death", 10);
-    }
-
-    private void playIdleAnimation() {
-        backgroundText.setVisible(false);
-        mainTextLabel.setVisible(false);
-        stopCurrentAnimation();
-        frameIndex = 0;
-        animationTimer = new Timer(150, e -> {
-            slimeLabel.setIcon(slimeIdleFrames[frameIndex]);
-            frameIndex = (frameIndex + 1) % slimeIdleFrames.length;
-        });
-        animationTimer.start();
-    }
-
-    private void playWalkLeftAnimation() {
-        backgroundText.setVisible(false);
-        mainTextLabel.setVisible(false);
-        stopCurrentAnimation();
-        frameIndex = 0;
-        animationTimer = new Timer(100, e -> {
-            if (frameIndex < slimeWalkLeftFrames.length) {
-                slimeLabel.setIcon(slimeWalkLeftFrames[frameIndex]);
-                slimeX -= 50;
-                slimePanel.setBounds(slimeX, slimeY, slimeWidth, slimeHeight);
-                frameIndex++;
-            } else {
-                animationTimer.stop();
-                playAttackAnimation();
-            }
-        });
-        animationTimer.start();
-    }
-
-    private void playAttackAnimation() {
-        backgroundText.setVisible(false);
-        mainTextLabel.setVisible(false);
-        stopCurrentAnimation();
-        frameIndex = 0;
-        animationTimer = new Timer(150, e -> {
-            if (frameIndex < slimeAttackFrames.length) {
-                slimeLabel.setIcon(slimeAttackFrames[frameIndex]);
-                frameIndex++;
-            } else {
-                animationTimer.stop();
-                playWalkRightAnimation();
-            }
-        });
-        animationTimer.start();
-    }
-
-    private void playWalkRightAnimation() {
-        backgroundText.setVisible(false);
-        mainTextLabel.setVisible(false);
-        stopCurrentAnimation();
-        frameIndex = 0;
-        animationTimer = new Timer(100, e -> {
-            if (frameIndex < slimeWalkRightFrames.length) {
-                slimeLabel.setIcon(slimeWalkRightFrames[frameIndex]);
-                slimeX += 50;
-                slimePanel.setBounds(slimeX, slimeY, slimeWidth, slimeHeight);
-                frameIndex++;
-            } else {
-                animationTimer.stop();
-                playIdleAnimation();
-            }
-        });
-        animationTimer.start();
-    }
-
-    private void playHurtAnimation() {
-        backgroundText.setVisible(false);
-        mainTextLabel.setVisible(false);
-        stopCurrentAnimation();
-        frameIndex = 0;
-        animationTimer = new Timer(200, e -> {
-            if (frameIndex < slimeHurtFrames.length) {
-                slimeLabel.setIcon(slimeHurtFrames[frameIndex]);
-                frameIndex++;
-            } else { 
-                animationTimer.stop(); 
-                playIdleAnimation();
-            }
-        });
-        animationTimer.start();
-    }
-
-    private void playDeathAnimation () {
-        backgroundText.setVisible(false);
-        mainTextLabel.setVisible(false);
-        stopCurrentAnimation();
-        frameIndex = 0;
-        animationTimer = new Timer(200, e -> {
-            if (frameIndex < slimeDeathFrames.length) {
-                slimeLabel.setIcon(slimeDeathFrames[frameIndex]);
-                frameIndex++;
-            } else { 
-                animationTimer.stop(); 
-                slimeLabel.setVisible(false);
-            }
-        });
-        animationTimer.start();
-    }
-
-    private void stopCurrentAnimation() {
-        if (animationTimer != null) {
-            animationTimer.stop();
-        }
-    }
 }
