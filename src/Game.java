@@ -4,11 +4,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
 
 public class Game {
 
     String playerName;
     int hp, atk;
+    Font gameFont;
 
     JFrame window;
     JLayeredPane layeredPane;
@@ -25,9 +28,9 @@ public class Game {
 
     ImageIcon[] slimeIdleFrames, slimeWalkLeftFrames, slimeAttackFrames, slimeWalkRightFrames, slimeHurtFrames, slimeDeathFrames;
 
-    Font sizeText = new Font("Times New Roman", Font.PLAIN, 36); 
-    Font normalText = new Font("Times New Roman", Font.BOLD, 24); 
-    Font inputText = new Font("Times New Roman", Font.PLAIN, 18);
+    // Font sizeText = new Font("Times New Roman", Font.PLAIN, 36); 
+    // Font normalText = new Font("Times New Roman", Font.BOLD, 24); 
+    // Font inputText = new Font("Times New Roman", Font.PLAIN, 18);
 
     public Game() {
         // Inner Class tsHandler
@@ -38,7 +41,28 @@ public class Game {
             }
         }
 
+        try {
+            File fontFile = new File("Assets\\font\\manaspc.ttf");
+            if (fontFile.exists()) {
+                gameFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(24f);
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                ge.registerFont(gameFont);
+                System.out.println("Font loaded successfully.");
+            } else {
+                System.out.println("Font file not found at: " + fontFile.getAbsolutePath());
+                gameFont = new Font("Arcade Classic", Font.PLAIN, 24); // Fallback font
+            }
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+            gameFont = new Font("Times New Roman", Font.PLAIN, 24); // Fallback font
+            System.out.println("Failed to load custom font, using fallback.");
+        }
+
         TitleScreenHandler tsHandler = new TitleScreenHandler();
+
+        // Initialize mainTextArea before setting its font
+        mainTextArea = new JTextArea();
+        mainTextArea.setFont(gameFont); // Apply the loaded font
 
         window = new JFrame("INERSIA: RPG Text-Based Game");
         window.setSize(1251, 700);
@@ -77,6 +101,7 @@ public class Game {
         ImageIcon startIcon = new ImageIcon("Assets/img/start.png");
         Image scaledStartIcon = startIcon.getImage().getScaledInstance(180, 75, Image.SCALE_SMOOTH);
         startButton = new JButton(new ImageIcon(scaledStartIcon));
+        startButton.setFont(gameFont);
         startButton.setBorderPainted(false);
         startButton.setContentAreaFilled(false);
         startButton.setFocusPainted(false);
@@ -87,6 +112,7 @@ public class Game {
         ImageIcon exitIcon = new ImageIcon("Assets/img/exit.png");
         Image scaledExitIcon = exitIcon.getImage().getScaledInstance(180, 75, Image.SCALE_SMOOTH);
         exitButton = new JButton(new ImageIcon(scaledExitIcon));
+        exitButton.setFont(gameFont);
         exitButton.setBorderPainted(false);
         exitButton.setContentAreaFilled(false);
         exitButton.setFocusPainted(false);
@@ -123,12 +149,12 @@ public class Game {
         layeredPane.add(mainTextPanel, Integer.valueOf(2));
         backgroundText.setVisible(true);
         mainTextArea = new JTextArea("\tWelcome to Inersia" 
-                                    + "\n====================================" 
+                                    + "\n===============================" 
                                     + "\nPlease Insert Your Name:");
         mainTextArea.setOpaque(false);
         // mainTextArea.setForeground(new Color(210, 180, 140)); // Warna Tan (cokelat muda)
         mainTextArea.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
-        mainTextArea.setFont(normalText);
+        mainTextArea.setFont(gameFont);
         mainTextArea.setLineWrap(true);
         mainTextArea.setWrapStyleWord(true);
         mainTextArea.setEditable(false); 
@@ -136,45 +162,52 @@ public class Game {
         mainTextPanel.add(mainTextArea);
     
         JTextField nameField = new JTextField();
-        nameField.setFont(inputText); 
+        nameField.setFont(gameFont); 
         nameField.setHorizontalAlignment(JTextField.CENTER);
         nameField.setBounds(390, 240, 350, 30); 
+        nameField.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(nameField);
     
         // Confirm button
         JButton confirmButton = new JButton("Confirm");
-        confirmButton.setFont(inputText); 
-        confirmButton.setBounds(515, 290, 100, 30); 
+        confirmButton.setFont(gameFont); 
+        confirmButton.setBounds(490, 290, 150, 30); 
+        confirmButton.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(confirmButton);
 
         JButton nextButton = new JButton("Next >>");
-        nextButton.setFont(inputText); 
-        nextButton.setBounds(515, 290, 100, 30);
+        nextButton.setFont(gameFont); 
+        nextButton.setBounds(490, 290, 150, 30);
         nextButton.setVisible(false);
+        nextButton.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(nextButton);
 
         choice1 = new JButton("Choice 1");
-        choice1.setFont(inputText); 
-        choice1.setBounds(515, 400, 100, 25); // Posisi yang berbeda
+        choice1.setFont(gameFont); 
+        choice1.setBounds(470, 400, 180, 25); // Posisi yang berbeda
         choice1.setVisible(false);
+        choice1.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice1);
 
         choice2 = new JButton("Choice 2");
-        choice2.setFont(inputText); 
-        choice2.setBounds(515, 430, 100, 25); // Posisi yang berbeda
+        choice2.setFont(gameFont); 
+        choice2.setBounds(470, 430, 180, 25); // Posisi yang berbeda
         choice2.setVisible(false);
+        choice2.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice2);
 
         choice3 = new JButton("Choice 3");
-        choice3.setFont(inputText); 
-        choice3.setBounds(515, 460, 100, 25); // Posisi yang berbeda
+        choice3.setFont(gameFont); 
+        choice3.setBounds(470, 460, 180, 25); // Posisi yang berbeda
         choice3.setVisible(false);
+        choice3.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice3);
 
         choice4 = new JButton("Choice 4");
-        choice4.setFont(inputText); 
-        choice4.setBounds(515, 490, 100, 25); // Posisi yang berbeda
+        choice4.setFont(gameFont); 
+        choice4.setBounds(470, 490, 180, 25); // Posisi yang berbeda
         choice4.setVisible(false);
+        choice4.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice4);
 
         confirmButton.addActionListener(new ActionListener() {
@@ -190,7 +223,7 @@ public class Game {
                     mainTextPanel.remove(confirmButton);
         
                     String fullText = "\tWelcome to Inersia"
-                                    + "\n===================================="
+                                    + "\n==============================="
                                     + "\nPlayer " + playerName
                                     + "\nYour Base HP is " + hp + " and ATK is " + atk;
         
@@ -214,7 +247,27 @@ public class Game {
                 mainTextPanel.remove(confirmButton);
                 mainTextPanel.setBounds(80, 60, 1150, 550); 
                 mainTextArea.setBounds(0, 0, 1050, 100); 
-                mainTextArea.setText("  Player: " + playerName + "\t\t\t\t\t     HP: " + hp + " | ATK: " + atk);
+                mainTextArea.setText("  Player: " + playerName + "\t\t\t\t     HP: " + hp + " | ATK: " + atk);
+                
+                // Add a new JTextArea for synopsys
+                JTextArea mainTextLabel = new JTextArea("Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss.");
+                mainTextLabel.setFont(gameFont);
+                mainTextLabel.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
+                mainTextLabel.setBounds(140, 150, 900, 100); // Set posisi dan ukuran sesuai kebutuhan
+                mainTextLabel.setOpaque(false);
+                mainTextLabel.setLineWrap(true);
+                mainTextLabel.setWrapStyleWord(true);
+                mainTextLabel.setEditable(false);
+                layeredPane.add(mainTextLabel, Integer.valueOf(2)); // Add with a higher z-index
+                                
+                    displayTextWithDelay("Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss.", mainTextLabel, 50, new Runnable() {
+                        @Override
+                        public void run() {
+                            // nextButton.setVisible(true); // Tampilkan tombol setelah teks selesai
+                        }
+                    });
+
+                
                 choice1.setVisible(true);
                 choice2.setVisible(true);
                 choice3.setVisible(true);
