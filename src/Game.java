@@ -3,9 +3,9 @@ package src;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.*;
 
 public class Game {
 
@@ -47,16 +47,11 @@ public class Game {
                 gameFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(24f);
                 GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
                 ge.registerFont(gameFont);
-                System.out.println("Font loaded successfully.");
             } else {
                 System.out.println("Font file not found at: " + fontFile.getAbsolutePath());
                 gameFont = new Font("Arcade Classic", Font.PLAIN, 24); // Fallback font
             }
-        } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
-            gameFont = new Font("Times New Roman", Font.PLAIN, 24); // Fallback font
-            System.out.println("Failed to load custom font, using fallback.");
-        }
+        } catch (FontFormatException | IOException e) { }
 
         TitleScreenHandler tsHandler = new TitleScreenHandler();
 
@@ -221,6 +216,8 @@ public class Game {
                     mainTextPanel.remove(nameField);
                     nameField.setOpaque(false);
                     mainTextPanel.remove(confirmButton);
+                    mainTextPanel.revalidate();
+                    mainTextPanel.repaint();
         
                     String fullText = "\tWelcome to Inersia"
                                     + "\n==============================="
