@@ -23,3 +23,4 @@
 
 ### 3 Desember
 - Raizul [Assets/soldier] [Assets/orc]: Pencarian animasi idle, walk, hurt, attack, dan death untuk soldier dan orc
+- Olfa [Assets/img]: Pencarian background text
