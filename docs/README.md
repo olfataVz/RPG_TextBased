@@ -20,3 +20,6 @@
 ### 2 Desember
 - Olfa [Assets/slime]: Pencarian animasi berjalan untuk slime
 - Olfa [Class/Game]: Pembuatan method untuk implementasi animasi attack, walk_right, dan walk_left untuk slime
+
+### 3 Desember
+- Raizul [Assets/soldier] [Assets/orc]: Pencarian animasi idle, walk, hurt, attack, dan death untuk soldier dan orc
