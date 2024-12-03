@@ -3,9 +3,9 @@ package src;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.*;
 
 public class Game {
 
@@ -15,7 +15,7 @@ public class Game {
 
     JFrame window;
     JLayeredPane layeredPane;
-    JLabel background, titleLogoLabel, slimeLabel, backgroundText;
+    JLabel background, titleLogoLabel, slimeLabel, backgroundText, backgroundInfo;
     JPanel startButtonPanel, exitButtonPanel, mainTextPanel, slimePanel;
     JButton startButton, exitButton, choice1, choice2, choice3, choice4;
     JTextArea mainTextArea, mainTextLabel;
@@ -40,11 +40,7 @@ public class Game {
                 System.out.println("Font file not found at: " + fontFile.getAbsolutePath());
                 gameFont = new Font("Arcade Classic", Font.PLAIN, 24); // Fallback font
             }
-        } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
-            gameFont = new Font("Times New Roman", Font.PLAIN, 24); // Fallback font
-            System.out.println("Failed to load custom font, using fallback.");
-        }
+        } catch (FontFormatException | IOException e) { }
 
         TitleScreenHandler tsHandler = new TitleScreenHandler();
 
@@ -71,6 +67,13 @@ public class Game {
         backgroundText.setBounds(70, 100, 1100, 370); 
         backgroundText.setVisible(false);
         layeredPane.add(backgroundText, Integer.valueOf(1));
+
+        ImageIcon bgInfo = new ImageIcon("Assets/img/bg_info.png"); 
+        Image scaledBgInfo = bgInfo.getImage().getScaledInstance(1150, 90, Image.SCALE_SMOOTH);
+        backgroundInfo = new JLabel(new ImageIcon(scaledBgInfo));
+        backgroundInfo.setBounds(30, 10, 1150, 90); 
+        backgroundInfo.setVisible(false);
+        layeredPane.add(backgroundInfo, Integer.valueOf(1));
 
         ImageIcon logoImage = new ImageIcon("Assets/img/logo.png"); 
         titleLogoLabel = new JLabel(logoImage);
@@ -223,13 +226,60 @@ public class Game {
             @Override
             public void actionPerformed(ActionEvent e) {
                 nextButton.setVisible(false);
+                mainTextArea.setVisible(false);
                 mainTextPanel.remove(nameField);
                 mainTextPanel.remove(confirmButton);
-                mainTextPanel.setBounds(80, 60, 1150, 550); 
-                mainTextArea.setBounds(0, 0, 1050, 100); 
-                mainTextArea.setText("  Player: " + playerName + "\t\t\t\t     HP: " + hp + " | ATK: " + atk);
+                backgroundInfo.setVisible(true);
+
+                JPanel playerInfoPanel = new JPanel();
+                playerInfoPanel.setLayout(null); // Menggunakan null layout untuk fleksibilitas posisi
+                playerInfoPanel.setBounds(70, 40, 1150, 50); // Ditempatkan lebih atas dari mainTextPanel
+                playerInfoPanel.setOpaque(false); // Panel transparan agar background terlihat
+
+                // Membuat JTextArea untuk nama pemain
+                JTextArea playerNameText = new JTextArea("Player: " + playerName);
+                playerNameText.setBounds(100, 5, 500, 40); // Posisi di kiri atas
+                playerNameText.setLineWrap(true);
+                playerNameText.setWrapStyleWord(true);
+                playerNameText.setEditable(false);
+                playerNameText.setOpaque(false);
+                playerNameText.setBackground(null);
+                playerNameText.setForeground(new Color(139, 69, 19));
+                playerNameText.setFont(gameFont);
+
+                ImageIcon heartIcon = new ImageIcon(new ImageIcon("Assets/img/heart.png").getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH));
+                ImageIcon attackIcon = new ImageIcon(new ImageIcon("Assets/img/attack.png").getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH));
+
+                // Membuat JLabel untuk gambar Heart (HP) dan menambahkan nilai HP
+                JLabel heartLabel = new JLabel(heartIcon);
+                heartLabel.setBounds(740, -15, 60, 60); // Posisi gambar heart
+
+                JLabel hpTextLabel = new JLabel(" " + hp); // Menambahkan nilai HP setelah gambar
+                hpTextLabel.setBounds(780, 0, 100, 35); // Posisi teks HP setelah gambar
+                hpTextLabel.setForeground(new Color(139, 69, 19));
+                hpTextLabel.setFont(gameFont);
+
+                // Membuat JLabel untuk gambar Attack (ATK) dan menambahkan nilai ATK
+                JLabel attackLabel = new JLabel(attackIcon);
+                attackLabel.setBounds(880, -15, 60, 60); // Posisi gambar attack
+
+                JLabel atkTextLabel = new JLabel(" " + atk); // Menambahkan nilai ATK setelah gambar
+                atkTextLabel.setBounds(920, 0, 100, 35); // Posisi teks ATK setelah gambar
+                atkTextLabel.setForeground(new Color(139, 69, 19));
+                atkTextLabel.setFont(gameFont);
+
+                // Menambahkan JLabel gambar dan teks ke playerInfoPanel
+                playerInfoPanel.add(heartLabel);
+                playerInfoPanel.add(hpTextLabel);
+                playerInfoPanel.add(attackLabel);
+                playerInfoPanel.add(atkTextLabel);
+                playerInfoPanel.add(playerNameText);
+
+                // Menambahkan playerInfoPanel ke layeredPane
+                layeredPane.add(playerInfoPanel, Integer.valueOf(2));
                 
                 // Add a new JTextArea for synopsys
+                mainTextPanel.setBounds(70, 75, 1150, 550); 
                 String sinopsis = "Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss.";
                 mainTextLabel = new JTextArea(sinopsis);
                 mainTextLabel.setFont(gameFont);
