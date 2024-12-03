@@ -23,6 +23,7 @@
 
 ### 3 Desember
 - Raizul [Assets/soldier] [Assets/orc]: Pencarian animasi idle, walk, hurt, attack, dan death untuk soldier dan orc
+- Raizul [src/Game.java] merapikan code sinopsis 
 - Olfa [Assets/img]: Pencarian background text
 - cece [Assets/font] : pencarian font game
 - cece [src/Game.java] : menerapkan atau mengimplementasikan font pada game dan merapihkan tampilannya
