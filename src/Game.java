@@ -244,7 +244,7 @@ public class Game {
                 playerNameText.setEditable(false);
                 playerNameText.setOpaque(false);
                 playerNameText.setBackground(null);
-                playerNameText.setForeground(new Color(139, 69, 19));
+                playerNameText.setForeground(Color.WHITE);
                 playerNameText.setFont(gameFont);
 
                 ImageIcon heartIcon = new ImageIcon(new ImageIcon("Assets/img/heart.png").getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH));
@@ -256,7 +256,7 @@ public class Game {
 
                 JLabel hpTextLabel = new JLabel(" " + hp); // Menambahkan nilai HP setelah gambar
                 hpTextLabel.setBounds(780, 0, 100, 35); // Posisi teks HP setelah gambar
-                hpTextLabel.setForeground(new Color(139, 69, 19));
+                hpTextLabel.setForeground(new Color(184, 18, 18));
                 hpTextLabel.setFont(gameFont);
 
                 // Membuat JLabel untuk gambar Attack (ATK) dan menambahkan nilai ATK
@@ -265,7 +265,7 @@ public class Game {
 
                 JLabel atkTextLabel = new JLabel(" " + atk); // Menambahkan nilai ATK setelah gambar
                 atkTextLabel.setBounds(920, 0, 100, 35); // Posisi teks ATK setelah gambar
-                atkTextLabel.setForeground(new Color(139, 69, 19));
+                atkTextLabel.setForeground(new Color(21, 89, 191));
                 atkTextLabel.setFont(gameFont);
 
                 // Menambahkan JLabel gambar dan teks ke playerInfoPanel
@@ -312,8 +312,6 @@ public class Game {
         choice2.addActionListener(e -> slime.playWalkLeftAnimation());
         choice3.addActionListener(e -> slime.playHurtAnimation());
         choice4.addActionListener(e -> slime.playDeathAnimation());
-
-        // loadAnimations();
     }
 
     private void displayTextWithDelay(String text, JTextArea textArea, int delay, Runnable onComplete) {
