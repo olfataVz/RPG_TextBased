@@ -10,7 +10,7 @@ import javax.swing.*;
 public class Game {
 
     String playerName;
-    int hp, atk;
+    int hp, atk, level;
     Font gameFont;
 
     JFrame window;
@@ -18,7 +18,7 @@ public class Game {
     JLabel background, titleLogoLabel, slimeLabel, backgroundText, backgroundInfo;
     JPanel startButtonPanel, exitButtonPanel, mainTextPanel, slimePanel;
     JButton startButton, exitButton, choice1, choice2, choice3, choice4;
-    JTextArea mainTextArea, mainTextLabel;
+    JTextArea mainTextArea, synopsisTextArea;
 
     public Game() {
         // Inner Class tsHandler
@@ -139,7 +139,7 @@ public class Game {
         mainTextArea.setLineWrap(true);
         mainTextArea.setWrapStyleWord(true);
         mainTextArea.setEditable(false); 
-        mainTextArea.setBounds(300, 75, 500, 120); 
+        mainTextArea.setBounds(300, 75, 550, 140); 
         mainTextPanel.add(mainTextArea);
     
         JTextField nameField = new JTextField();
@@ -163,28 +163,28 @@ public class Game {
         nextButton.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(nextButton);
 
-        choice1 = new JButton("Choice 1");
+        choice1 = new JButton("go North");
         choice1.setFont(gameFont); 
         choice1.setBounds(470, 400, 180, 25); // Posisi yang berbeda
         choice1.setVisible(false);
         choice1.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice1);
 
-        choice2 = new JButton("Choice 2");
+        choice2 = new JButton("go East");
         choice2.setFont(gameFont); 
         choice2.setBounds(470, 430, 180, 25); // Posisi yang berbeda
         choice2.setVisible(false);
         choice2.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice2);
 
-        choice3 = new JButton("Choice 3");
+        choice3 = new JButton("go South");
         choice3.setFont(gameFont); 
         choice3.setBounds(470, 460, 180, 25); // Posisi yang berbeda
         choice3.setVisible(false);
         choice3.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice3);
 
-        choice4 = new JButton("Choice 4");
+        choice4 = new JButton("go West");
         choice4.setFont(gameFont); 
         choice4.setBounds(470, 490, 180, 25); // Posisi yang berbeda
         choice4.setVisible(false);
@@ -198,6 +198,7 @@ public class Game {
                 if (!playerName.isEmpty()) {
                     hp = 100;
                     atk = 15;
+                    level = 1;
                     confirmButton.setVisible(false);
                     mainTextPanel.remove(nameField);
                     nameField.setOpaque(false);
@@ -233,12 +234,22 @@ public class Game {
 
                 JPanel playerInfoPanel = new JPanel();
                 playerInfoPanel.setLayout(null); // Menggunakan null layout untuk fleksibilitas posisi
-                playerInfoPanel.setBounds(70, 40, 1150, 50); // Ditempatkan lebih atas dari mainTextPanel
+                playerInfoPanel.setBounds(70, 0, 1150, 100); // Ditempatkan lebih atas dari mainTextPanel
                 playerInfoPanel.setOpaque(false); // Panel transparan agar background terlihat
 
+                // Memuat gambar arah mata angin (N_atas.png)
+                ImageIcon northUp = new ImageIcon(new ImageIcon("Assets/img/N_atas.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
+                ImageIcon northRight = new ImageIcon(new ImageIcon("Assets/img/N_kanan.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
+                ImageIcon northDown = new ImageIcon(new ImageIcon("Assets/img/N_bawah.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
+                ImageIcon northLeft = new ImageIcon(new ImageIcon("Assets/img/N_kiri.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
+
+                // Membuat JLabel untuk gambar arah mata angin (N_atas)
+                JLabel compassLabel = new JLabel(northUp);
+                compassLabel.setBounds(60, 12, 95, 95); // Posisi gambar mata angin di sebelah kiri
+
                 // Membuat JTextArea untuk nama pemain
-                JTextArea playerNameText = new JTextArea("Player: " + playerName);
-                playerNameText.setBounds(100, 5, 500, 40); // Posisi di kiri atas
+                JTextArea playerNameText = new JTextArea("Player " + playerName + "  [Lv. " + level + "]");
+                playerNameText.setBounds(165, 45, 500, 40); // Posisi di kiri atas
                 playerNameText.setLineWrap(true);
                 playerNameText.setWrapStyleWord(true);
                 playerNameText.setEditable(false);
@@ -247,24 +258,30 @@ public class Game {
                 playerNameText.setForeground(Color.WHITE);
                 playerNameText.setFont(gameFont);
 
+                playerInfoPanel.add(compassLabel);
+                playerInfoPanel.add(playerNameText);
+
+                // Menambahkan playerInfoPanel ke layeredPane
+                layeredPane.add(playerInfoPanel, Integer.valueOf(2));
+
                 ImageIcon heartIcon = new ImageIcon(new ImageIcon("Assets/img/heart.png").getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH));
                 ImageIcon attackIcon = new ImageIcon(new ImageIcon("Assets/img/attack.png").getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH));
 
                 // Membuat JLabel untuk gambar Heart (HP) dan menambahkan nilai HP
                 JLabel heartLabel = new JLabel(heartIcon);
-                heartLabel.setBounds(740, -15, 60, 60); // Posisi gambar heart
+                heartLabel.setBounds(740, 25, 60, 60); // Posisi gambar heart
 
                 JLabel hpTextLabel = new JLabel(" " + hp); // Menambahkan nilai HP setelah gambar
-                hpTextLabel.setBounds(780, 0, 100, 35); // Posisi teks HP setelah gambar
+                hpTextLabel.setBounds(780, 40, 100, 35); // Posisi teks HP setelah gambar
                 hpTextLabel.setForeground(new Color(184, 18, 18));
                 hpTextLabel.setFont(gameFont);
 
                 // Membuat JLabel untuk gambar Attack (ATK) dan menambahkan nilai ATK
                 JLabel attackLabel = new JLabel(attackIcon);
-                attackLabel.setBounds(880, -15, 60, 60); // Posisi gambar attack
+                attackLabel.setBounds(880, 25, 60, 60); // Posisi gambar attack
 
                 JLabel atkTextLabel = new JLabel(" " + atk); // Menambahkan nilai ATK setelah gambar
-                atkTextLabel.setBounds(920, 0, 100, 35); // Posisi teks ATK setelah gambar
+                atkTextLabel.setBounds(920, 40, 100, 35); // Posisi teks ATK setelah gambar
                 atkTextLabel.setForeground(new Color(21, 89, 191));
                 atkTextLabel.setFont(gameFont);
 
@@ -280,18 +297,19 @@ public class Game {
                 
                 // Add a new JTextArea for synopsys
                 mainTextPanel.setBounds(70, 75, 1150, 550); 
-                String sinopsis = "Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss.";
-                mainTextLabel = new JTextArea(sinopsis);
-                mainTextLabel.setFont(gameFont);
-                mainTextLabel.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
-                mainTextLabel.setBounds(140, 150, 900, 100); // Set posisi dan ukuran sesuai kebutuhan
-                mainTextLabel.setOpaque(false);
-                mainTextLabel.setLineWrap(true);
-                mainTextLabel.setWrapStyleWord(true);
-                mainTextLabel.setEditable(false);
-                layeredPane.add(mainTextLabel, Integer.valueOf(2)); // Add with a higher z-index
+                String sinopsis = "Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss."
+                                    + "\n\n\nU are now in the town, where u wanna go next Adventurer ?";
+                synopsisTextArea = new JTextArea(sinopsis);
+                synopsisTextArea.setFont(gameFont);
+                synopsisTextArea.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
+                synopsisTextArea.setBounds(140, 150, 950, 400); // Set posisi dan ukuran sesuai kebutuhan
+                synopsisTextArea.setOpaque(false);
+                synopsisTextArea.setLineWrap(true);
+                synopsisTextArea.setWrapStyleWord(true);
+                synopsisTextArea.setEditable(false);
+                layeredPane.add(synopsisTextArea, Integer.valueOf(2)); // Add with a higher z-index
                                 
-                displayTextWithDelay(sinopsis, mainTextLabel, 50, new Runnable() {
+                displayTextWithDelay(sinopsis, synopsisTextArea, 50, new Runnable() {
                     @Override
                     public void run() {
                      

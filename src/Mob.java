@@ -1,7 +1,7 @@
 package src;
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public abstract class Mob {
     protected String mobType;
@@ -46,7 +46,7 @@ public abstract class Mob {
     protected abstract void loadAnimations();
 
     private void hideTextComponents() {
-        game.mainTextLabel.setVisible(false);
+        game.synopsisTextArea.setVisible(false);
         game.backgroundText.setVisible(false);
     }
 
