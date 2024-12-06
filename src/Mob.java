@@ -5,7 +5,7 @@ import javax.swing.*;
 
 public abstract class Mob {
     protected String mobType;
-    protected int x, y, width, height;
+    protected int x, y, width, height, hp, atk, damage;
     protected JLayeredPane layeredPane;
     protected JPanel mobPanel;
     protected JLabel mobLabel;
@@ -14,25 +14,30 @@ public abstract class Mob {
     protected int frameIndex = 0;
     protected ImageIcon[] idleFrames, walkLeftFrames, walkRightFrames, attackFrames, hurtFrames, deathFrames;
 
-    public Mob(String mobType, int startX, int startY, int width, int height, JLayeredPane layeredPane, Game game) {
+    public Mob(String mobType, int startX, int startY, int width, int height, int hp, int atk, JLayeredPane layeredPane, Game game) {
+        if (layeredPane == null) {
+            throw new IllegalArgumentException("layeredPane cannot be null");
+        }
         this.mobType = mobType;
         this.x = startX;
         this.y = startY;
         this.width = width;
         this.height = height;
+        this.hp = hp;
+        this.atk = atk;
         this.layeredPane = layeredPane;
         this.game = game;
-
+    
         mobPanel = new JPanel();
         mobPanel.setBounds(x, y, width, height);
         mobPanel.setOpaque(false);
         layeredPane.add(mobPanel, Integer.valueOf(1));
-
+    
         mobLabel = new JLabel();
         mobPanel.add(mobLabel);
-        
+    
         loadAnimations();
-    }
+    }    
 
     protected ImageIcon[] loadAnimationFrames(String folderPath, String filePrefix, int frameCount) {
         ImageIcon[] frames = new ImageIcon[frameCount];
@@ -46,6 +51,8 @@ public abstract class Mob {
     protected abstract void loadAnimations();
 
     private void hideTextComponents() {
+        game.battleTextArea.setVisible(true);
+        game.backgroundBattleText.setVisible(true);
         game.synopsisTextArea.setVisible(false);
         game.backgroundText.setVisible(false);
     }
@@ -58,6 +65,8 @@ public abstract class Mob {
             mobLabel.setIcon(idleFrames[frameIndex]);
             frameIndex = (frameIndex + 1) % idleFrames.length;
         });
+        x = 900;
+        mobPanel.setBounds(x, y, width, height);
         animationTimer.start();
     }
 
@@ -100,8 +109,9 @@ public abstract class Mob {
     public void playAttackAnimation() {
         hideTextComponents();
         stopCurrentAnimation();
+        damage = 1 * atk;
         frameIndex = 0;
-        animationTimer = new Timer(150, e -> {
+        animationTimer = new Timer(100, e -> {
             if(frameIndex < attackFrames.length){   
                 mobLabel.setIcon(attackFrames[frameIndex]);
                 frameIndex++;
@@ -117,7 +127,7 @@ public abstract class Mob {
         hideTextComponents();
         stopCurrentAnimation();
         frameIndex = 0;
-        animationTimer = new Timer(200, e -> {
+        animationTimer = new Timer(700, e -> {
             mobLabel.setIcon(hurtFrames[frameIndex]);
             frameIndex++;
             if (frameIndex < hurtFrames.length) {
@@ -148,8 +158,32 @@ public abstract class Mob {
     }
 
     private void stopCurrentAnimation() {
-        if (animationTimer != null) {
+        if (animationTimer != null && animationTimer.isRunning()) {
             animationTimer.stop();
         }
+    }    
+
+    public void reduceHP(int damage) {
+        this.hp -= damage;
+        if(hp <= 0) {
+            hp = 0;
+        }
+
+        game.battleTextArea.setText("HP Slime berkurang: " + damage + ". HP sekarang: " + hp);
+        
+        if (hp <= 0) {
+            playDeathAnimation();
+        } else {
+            playHurtAnimation();
+        }
     }
+
+    public int getHP() {
+        return hp;
+    }
+
+    public int getAtk() {
+        return atk;
+    }
+    
 }
