@@ -139,7 +139,6 @@ public class Wizard {
             } else {
                 animationTimer.stop();
                 playSkillAnimation();
-                playIdleAnimation();
             }
         });
         animationTimer.start();
