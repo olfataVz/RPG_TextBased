@@ -149,7 +149,7 @@ public class Wizard {
         animationTimer = new Timer(100, e -> {
             if (frameIndex < skillAnimationFrames.length) {
                 wizardLabel.setIcon(skillAnimationFrames[frameIndex]);
-                x += 75; // Pergeseran kecil per frame
+                x += 95; // Pergeseran kecil per frame
                 wizardPanel.setBounds(x, y, width, height);
                 frameIndex++;
             } else {
@@ -275,7 +275,7 @@ public class Wizard {
             if (hp > 100) {  // Assuming 100 is the max HP
                 hp = 100;
             }
-            game.battleTextArea.setText("Wizard healed. Current HP: " + hp);
+            game.battleTextArea.setText("Wizard healed. Current HP: " + getHP());
         }
     }
 
@@ -293,7 +293,7 @@ public class Wizard {
 
     public void reduceHP(int damage) {
         this.hp -= damage;
-        game.battleTextArea.setText("Wizard menerima damage: " + damage + ". HP sekarang: " + hp);
+        game.battleTextArea.setText("Wizard menerima damage: " + damage + ". HP sekarang: " + getHP());
         if (hp <= 0) {
             playDeathAnimation();
         } else {

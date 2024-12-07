@@ -41,15 +41,10 @@ public class Game {
 
         try {
             File fontFile = new File("Assets\\font\\manaspc.ttf");
-            if (fontFile.exists()) {
                 gameFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(24f);
                 GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
                 ge.registerFont(gameFont);
-                System.out.println("Font loaded successfully.");
-            } else {
-                System.out.println("Font file not found at: " + fontFile.getAbsolutePath());
-                gameFont = new Font("Arcade Classic", Font.PLAIN, 24); // Fallback font
-            }
+
         } catch (FontFormatException | IOException e) { }
 
         TitleScreenHandler tsHandler = new TitleScreenHandler();
@@ -384,18 +379,10 @@ public class Game {
                         choice2.setVisible(true);
                         choice3.setVisible(true);
                         choice4.setVisible(true);
-
-
                     }
                 });
-
-                
             }
         });
-        // choice1.addActionListener(e -> slime.playIdleAnimation());
-        // choice2.addActionListener(e -> slime.playWalkLeftAnimation());
-        // choice3.addActionListener(e -> slime.playHurtAnimation());
-        // choice4.addActionListener(e -> slime.playDeathAnimation());
     }
 
     // Metode untuk memulai pertarungan dengan Slime
@@ -432,9 +419,7 @@ public class Game {
                 player.playRunRightAnimation();
                 delayAndExecute(1200, () -> {
                     player.playAttackAnimation();
-                    slime.reduceHP(player.getAtk()); // 1x atk
-                    System.out.println("Slime HP: " + slime.getHP());
-                    updatePlayerInfo(); // Memperbarui tampilan HP pemain jika diperlukan
+                    slime.reduceHP(player.getAtk()); // 1x atk // Memperbarui tampilan HP pemain jika diperlukan
                     checkSlimeStatus(); // Memeriksa status slime
                 });
             }
@@ -442,8 +427,6 @@ public class Game {
                 player.playSkill();
                 delayAndExecute(1200, () -> {
                     slime.reduceHP(player.getAtk() * 2); // 2x atk
-                    System.out.println("Slime HP: " + slime.getHP());
-                    updatePlayerInfo();
                     checkSlimeStatus();
                 });
             }
@@ -451,8 +434,6 @@ public class Game {
                 player.playUltimateRight();
                 delayAndExecute(2100, () -> {
                     slime.reduceHP(player.getAtk() * 4); // 4x atk
-                    System.out.println("Slime HP: " + slime.getHP());
-                    updatePlayerInfo();
                     checkSlimeStatus();
                 });
             }
@@ -460,8 +441,7 @@ public class Game {
             case "Healing" -> {
                 player.heal();
                 delayAndExecute(2100, () -> {
-                    slime.playWalkLeftAnimation();
-                    slime.playAttackAnimation();
+                    checkSlimeStatus();
                     player.reduceHP(slime.getAtk());
                 });
             }
@@ -471,9 +451,8 @@ public class Game {
             if (slime.getHP() > 0) {
                 slime.playWalkLeftAnimation();
                 delayAndExecute(1500, () -> {
-                    player.reduceHP(5); // Slime menyerang dengan damage 5
+                    player.reduceHP(slime.getAtk()); // Slime menyerang dengan damage 5
                     hpTextLabel.setText(" " + player.getHP()); // Memperbarui tampilan HP pemain
-                    System.out.println("Wizard HP: " + player.getHP());
                 });
             }
         });
@@ -503,11 +482,6 @@ public class Game {
         choice2.setVisible(false);
         choice3.setVisible(false);
         choice4.setVisible(false);
-    }
-
-    private void updatePlayerInfo() {
-        hpTextLabel.setText(" " + player.getHP());
-        // Jika ada informasi lain yang perlu diperbarui, tambahkan di sini
     }
 
     private void delayAndExecute(int delay, Runnable action) {

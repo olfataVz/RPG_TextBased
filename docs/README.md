@@ -36,3 +36,11 @@
 - cece [src/Game.java] : merapihkan tampilan GUI dan menambahkan sinopsis.
 - Olfa [Assets/img]: Pencarian background info player, logo HP dan ATK
 - Olfa [src/Game.java]: Pembuatan panel playerInfo yang memuat nama, hp, dan attack
+
+## Session 3 (5 - 7 Desember 2024)
+
+### 6 Desember 2024
+
+- Olfa [Assets/img] Pencarian assets karakter player
+- Olfa [src/Wizard.java] Pembuatan class wizard yang menampung informasi player
+- Olfa [src/Game.java] Implementasi animasi Wizard ke dalam Game serta testing battle antara player dengan slime
