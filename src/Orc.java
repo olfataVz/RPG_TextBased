@@ -9,11 +9,11 @@ public class Orc extends Mob {
 
     @Override
     protected void loadAnimations() {
-        idleFrames = loadAnimationFrames("Assets/orc/Idle", "idle", 6);
-        walkLeftFrames = loadAnimationFrames("Assets/orc/Walk_Left", "walk-L", 16);
-        walkRightFrames = loadAnimationFrames("Assets/orc/Walk_Right", "walk-R", 16);
-        attackFrames = loadAnimationFrames("Assets/orc/Attack", "attack", 10);
-        hurtFrames = loadAnimationFrames("Assets/orc/Hurt", "hurt", 5);
-        deathFrames = loadAnimationFrames("Assets/orc/Death", "death", 10);
+        idleFrames = loadAnimationFrames("Assets/orc/idle", "idle", 6);
+        walkLeftFrames = loadAnimationFrames("Assets/orc/walk_Left", "walk_L", 8);
+        walkRightFrames = loadAnimationFrames("Assets/orc/walk_Right", "walk_R", 8);
+        attackFrames = loadAnimationFrames("Assets/orc/attack", "attack", 6);
+        hurtFrames = loadAnimationFrames("Assets/orc/hurt", "hurt", 4);
+        deathFrames = loadAnimationFrames("Assets/orc/death", "death", 4);
     }
 }
