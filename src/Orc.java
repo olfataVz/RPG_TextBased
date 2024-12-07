@@ -3,8 +3,8 @@ package src;
 import javax.swing.*;
 
 public class Orc extends Mob {
-    public Orc(int startX, int startY, int width, int height, int hp, int atk, JLayeredPane layeredPane, Game game) {
-        super("orc", startX, startY, width, height, hp, atk, layeredPane, game);
+    public Orc(int startX, int startY, int width, int height, int hp, int atk, int walk,JLayeredPane layeredPane, Game game) {
+        super("orc", startX, startY, width, height, hp, atk, walk, layeredPane, game);
     }
 
     @Override

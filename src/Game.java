@@ -23,6 +23,7 @@ public class Game {
 
     private Wizard player;
     private Slime slime;
+    private Orc orc;
     private int enemiesDefeated = 0; // Track the number of enemies defeated
     private Object enemy;
 
@@ -34,7 +35,8 @@ public class Game {
     public Game() {
 
         layeredPane = new JLayeredPane();
-        slime = new Slime(900, 260, 250, 250, 50, 5, layeredPane, this);
+        slime = new Slime(900, 260, 250, 250, 50, 5, 50, layeredPane, this);
+        orc = new Orc(900, 260, 250, 250, 100, 10, 100, layeredPane, this);
         player = new Wizard (90, 215, 250, 250, layeredPane, this, 100, 15, 1);
         class TitleScreenHandler implements ActionListener {
             @Override
@@ -206,9 +208,7 @@ public class Game {
                         // Start a random encounter
                         startRandomEncounter();
                         
-                        // Update the text to show the encounter message
                         synopsisTextArea.setText("Kamu bertemu dengan " + (enemy instanceof Slime ? "Slime" : "Orc") + ". Apakah kamu ingin melawannya?");
-                        
                         // Change the button text for choices
                         choice1.setText("Ya");
                         choice2.setText("Tidak");
@@ -216,11 +216,12 @@ public class Game {
                         choice2.setVisible(true);
                         choice3.setVisible(false);
                         choice4.setVisible(false);
-
+                        
                         // Revalidate and repaint to ensure UI updates
                         mainTextPanel.revalidate();
                         mainTextPanel.repaint();
                         
+    
                         // Add action listener for "Ya" and "Tidak" choices
                         choice1.addActionListener(new ActionListener() {
                             @Override
@@ -388,7 +389,6 @@ public class Game {
     private void startFightWithOrc() {
         synopsisTextArea.setText("Pertarungan dengan Orc dimulai!");
         player.playIdleAnimation();
-        Orc orc = new Orc(900, 260, 250, 250, 100, 10, layeredPane, this);
         orc.playIdleAnimation();
         showBattleOptions(orc);
     }
@@ -422,18 +422,16 @@ public class Game {
 
     private void startRandomEncounter() {
         Random random = new Random();
-        int enemyType = random.nextInt(2); // 0 for Slime, 1 for Orc
+        int enemyType = random.nextInt(2); 
     
         if (enemiesDefeated < 2) {
             if (enemyType == 0) {
-                enemy = slime; // Assign the enemy variable
+                enemy = slime; 
                 showTextComponents();
-                synopsisTextArea.setText("Kamu bertemu dengan Slime. Apakah kamu ingin melawannya?");
                 startFightWithSlime();
             } else {
-                enemy = new Orc(900, 260, 250, 250, 100, 10, layeredPane, this); // Create a new Orc instance
+                enemy = orc;
                 showTextComponents();
-                synopsisTextArea.setText("Kamu bertemu dengan Orc. Apakah kamu ingin melawannya?");
                 startFightWithOrc();
             }
         }
@@ -481,20 +479,11 @@ public class Game {
 
             case "Healing" -> {
                 player.heal();
-                delayAndExecute(1200, () -> {
-                    if (enemy instanceof Slime) {
-                        ((Slime) enemy).reduceHP(slime.getAtk());
-                        checkEnemyStatus((Slime) enemy);
-                    } else if (enemy instanceof Orc) {
-                        ((Orc) enemy).reduceHP(slime.getAtk());
-                        checkEnemyStatus((Orc) enemy);
-                    }
-                });
-                
+                hpTextLabel.setText(" " + player.getHP());
             }
         }
         // Slime menyerang setelah delay 2 detik jika slime masih hidup
-        delayAndExecute(2500, () -> {
+        delayAndExecute(3500, () -> {
             if (enemy instanceof Slime && ((Slime) enemy).getHP() > 0) {
                 ((Slime) enemy).playWalkLeftAnimation();
                 delayAndExecute(1500, () -> {
@@ -511,27 +500,17 @@ public class Game {
         });
     }
 
-    private void checkEnemyStatus(Slime slime) {
-        if (slime.getHP() <= 0) {
+    private void checkEnemyStatus(Mob enemy) {
+        if (enemy.getHP() <= 0) {
             enemiesDefeated++;
             delayAndExecute(3000, () -> {
                 player.wizardPanel.setVisible(false);
-                synopsisTextArea.setText("Slime telah dikalahkan!");
+                synopsisTextArea.setText(enemy instanceof Slime ? "Slime telah dikalahkan!" : "Orc telah dikalahkan!");
                 hideBattleOptions();
             });
         }
     }
-
-    private void checkEnemyStatus(Orc orc) {
-        if (orc.getHP() <= 0) {
-            enemiesDefeated++;
-            delayAndExecute(3000, () -> {
-                player.wizardPanel.setVisible(false);
-                synopsisTextArea.setText("Orc telah dikalahkan!");
-                hideBattleOptions();
-            });
-        }
-    }
+    
 
     private void showTextComponents() {
         battleTextArea.setVisible(false);

@@ -3,8 +3,8 @@ package src;
 import javax.swing.*;
 
 public class Golem extends Mob {
-    public Golem(int startX, int startY, int width, int height, int hp, int atk, JLayeredPane layeredPane, Game game) {
-        super("golem", startX, startY, width, height, hp, atk, layeredPane, game);
+    public Golem(int startX, int startY, int width, int height, int hp, int atk, int walk, JLayeredPane layeredPane, Game game) {
+        super("golem", startX, startY, width, height, hp, atk, walk, layeredPane, game);
     }
 
     @Override

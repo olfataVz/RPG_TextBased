@@ -5,7 +5,7 @@ import javax.swing.*;
 
 public abstract class Mob {
     protected String mobType;
-    protected int x, y, width, height, hp, atk, damage;
+    protected int x, y, width, height, hp, atk, damage, walk;
     protected JLayeredPane layeredPane;
     protected JPanel mobPanel;
     protected JLabel mobLabel;
@@ -13,8 +13,8 @@ public abstract class Mob {
     Game game;
     protected int frameIndex = 0;
     protected ImageIcon[] idleFrames, walkLeftFrames, walkRightFrames, attackFrames, hurtFrames, deathFrames;
-
-    public Mob(String mobType, int startX, int startY, int width, int height, int hp, int atk, JLayeredPane layeredPane, Game game) {
+    
+    public Mob(String mobType, int startX, int startY, int width, int height, int hp, int atk, int walk, JLayeredPane layeredPane, Game game) {
         if (layeredPane == null) {
             throw new IllegalArgumentException("layeredPane cannot be null");
         }
@@ -25,6 +25,7 @@ public abstract class Mob {
         this.height = height;
         this.hp = hp;
         this.atk = atk;
+        this.walk = walk;
         this.layeredPane = layeredPane;
         this.game = game;
     
@@ -53,7 +54,7 @@ public abstract class Mob {
     private void hideTextComponents() {
         game.battleTextArea.setVisible(true);
         game.backgroundBattleText.setVisible(true);
-        game.synopsisTextArea.setVisible(false);
+        // game.synopsisTextArea.setVisible(false);
         game.backgroundText.setVisible(false);
     }
 
@@ -77,7 +78,7 @@ public abstract class Mob {
         animationTimer = new Timer(100, e -> {
             if (frameIndex < walkLeftFrames.length){
                 mobLabel.setIcon(walkLeftFrames[frameIndex]);
-                x -= 50;
+                x -= walk;
                 mobPanel.setBounds(x, y, width, height);
                 frameIndex++;
             } else {
@@ -95,7 +96,7 @@ public abstract class Mob {
         animationTimer = new Timer(100, e -> {
             if (frameIndex < walkRightFrames.length){
                 mobLabel.setIcon(walkRightFrames[frameIndex]);
-                x += 50;
+                x += walk;
                 mobPanel.setBounds(x, y, width, height);
                 frameIndex++;
             } else {
@@ -169,7 +170,7 @@ public abstract class Mob {
             hp = 0;
         }
 
-        game.battleTextArea.setText("HP Slime berkurang: " + damage + ". HP sekarang: " + hp);
+        game.battleTextArea.setText("HP " + mobType+ " berkurang: " + damage + ". HP sekarang: " + hp);
         
         if (hp <= 0) {
             playDeathAnimation();
