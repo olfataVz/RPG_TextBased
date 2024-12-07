@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
+
 import javax.swing.*;
 
 public class Game {
@@ -21,6 +23,8 @@ public class Game {
 
     private Wizard player;
     private Slime slime;
+    private int enemiesDefeated = 0; // Track the number of enemies defeated
+    private Object enemy;
 
     private ImageIcon northUp = new ImageIcon(new ImageIcon("Assets/img/N_atas.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
     private ImageIcon northRight = new ImageIcon(new ImageIcon("Assets/img/N_kanan.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
@@ -185,7 +189,7 @@ public class Game {
         nextButton.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(nextButton);
 
-        choice1 = new JButton("go North");
+        choice1 = new JButton("i'm ready");
         choice1.setFont(gameFont); 
         choice1.setBounds(470, 400, 180, 25); // Posisi yang berbeda
         choice1.setVisible(false);
@@ -196,44 +200,40 @@ public class Game {
             @Override
             public void actionPerformed(ActionEvent e) {
                 switch (choice1.getText()) {
-                    case "go North":
+                    case "i'm ready":
                         direction = "map5";
-                        synopsisTextArea.setText("Kamu bertemu dengan Slime! Apakah kamu ingin melawannya?");
                         
-                        // Ubah teks tombol choice1 dan choice2, dan tampilkan keduanya
+                        // Start a random encounter
+                        startRandomEncounter();
+                        
+                        // Update the text to show the encounter message
+                        synopsisTextArea.setText("Kamu bertemu dengan " + (enemy instanceof Slime ? "Slime" : "Orc") + ". Apakah kamu ingin melawannya?");
+                        
+                        // Change the button text for choices
                         choice1.setText("Ya");
                         choice2.setText("Tidak");
                         choice1.setVisible(true);
                         choice2.setVisible(true);
                         choice3.setVisible(false);
                         choice4.setVisible(false);
-                        
-                        // Revalidate dan repaint untuk memastikan pembaruan tampilan
+
+                        // Revalidate and repaint to ensure UI updates
                         mainTextPanel.revalidate();
                         mainTextPanel.repaint();
                         
-                        // Tambahkan action listener untuk pilihan "Ya" dan "Tidak"
+                        // Add action listener for "Ya" and "Tidak" choices
                         choice1.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent event) {
-                                switch (choice1.getText()) {
-                                    case "Ya":
+                                if ("Ya".equals(choice1.getText())) {
+                                    if (enemy instanceof Slime) {
                                         startFightWithSlime();
-
-                                        choice1.addActionListener(new ActionListener() {
-                                            @Override
-                                            public void actionPerformed(ActionEvent event) {
-                                                switch (choice1.getText()) {
-                                                    case "Kembali":
-                                                    returnToPreviousPlace("map5");
-                                                }
-                                            }
-                                        });
-
-                                        break;
-                                    case "Tidak":
-                                        returnToPreviousPlace("map5");
-                                        break;
+                                    } else if (enemy instanceof Orc) {
+                                        startFightWithOrc();
+                                    }
+                                } else if ("Tidak".equals(choice1.getText())) {
+                                    // Start a new random encounter
+                                    startRandomEncounter();
                                 }
                             }
                         });
@@ -360,7 +360,7 @@ public class Game {
                 // Add a new JTextArea for synopsys
                 mainTextPanel.setBounds(70, 75, 1150, 550); 
                 String sinopsis = "Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss."
-                                    + "\n\n\nU are now in the town, where u wanna go next Adventurer ?";
+                                    + "\n\n\nU are now in the town, You continue walking towards the city of darkness to find the boss. Along the way, you encounter an enemy! Are you ready to fight it?";
                 synopsisTextArea = new JTextArea(sinopsis);
                 synopsisTextArea.setFont(gameFont);
                 synopsisTextArea.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
@@ -376,24 +376,31 @@ public class Game {
                     public void run() {
                      
                         choice1.setVisible(true);
-                        choice2.setVisible(true);
-                        choice3.setVisible(true);
-                        choice4.setVisible(true);
+                        // choice2.setVisible(true);
+                        // choice3.setVisible(true);
+                        // choice4.setVisible(true);
                     }
                 });
             }
         });
     }
 
-    // Metode untuk memulai pertarungan dengan Slime
+    private void startFightWithOrc() {
+        synopsisTextArea.setText("Pertarungan dengan Orc dimulai!");
+        player.playIdleAnimation();
+        Orc orc = new Orc(900, 260, 250, 250, 100, 10, layeredPane, this);
+        orc.playIdleAnimation();
+        showBattleOptions(orc);
+    }
+
     private void startFightWithSlime() {
         synopsisTextArea.setText("Pertarungan dengan Slime dimulai!");
         player.playIdleAnimation();
         slime.playIdleAnimation();
-        showBattleOptions();
+        showBattleOptions(slime);
     }
 
-    private void showBattleOptions() {
+    private void showBattleOptions(Object enemy) {
         // Set teks pada tombol
         choice1.setText("Attack");
         choice2.setText("Skill");
@@ -407,55 +414,123 @@ public class Game {
         choice4.setVisible(true);
     
         // Aksi tombol Attack
-        choice1.addActionListener(e -> handlePlayerAction("Attack"));
-        choice2.addActionListener(e -> handlePlayerAction("Skill"));
-        choice3.addActionListener(e -> handlePlayerAction("Ultimate"));
-        choice4.addActionListener(e -> handlePlayerAction("Healing"));
+        choice1.addActionListener(e -> handlePlayerAction("Attack", enemy));
+        choice2.addActionListener(e -> handlePlayerAction("Skill", enemy));
+        choice3.addActionListener(e -> handlePlayerAction("Ultimate", enemy));
+        choice4.addActionListener(e -> handlePlayerAction("Healing", enemy));
     }
 
-    private void handlePlayerAction(String actionType) {
+    private void startRandomEncounter() {
+        Random random = new Random();
+        int enemyType = random.nextInt(2); // 0 for Slime, 1 for Orc
+    
+        if (enemiesDefeated < 2) {
+            if (enemyType == 0) {
+                enemy = slime; // Assign the enemy variable
+                showTextComponents();
+                synopsisTextArea.setText("Kamu bertemu dengan Slime. Apakah kamu ingin melawannya?");
+                startFightWithSlime();
+            } else {
+                enemy = new Orc(900, 260, 250, 250, 100, 10, layeredPane, this); // Create a new Orc instance
+                showTextComponents();
+                synopsisTextArea.setText("Kamu bertemu dengan Orc. Apakah kamu ingin melawannya?");
+                startFightWithOrc();
+            }
+        }
+    }
+
+    private void handlePlayerAction(String actionType, Object enemy) {
         switch (actionType) {
             case "Attack" -> {
                 player.playRunRightAnimation();
                 delayAndExecute(1200, () -> {
                     player.playAttackAnimation();
-                    slime.reduceHP(player.getAtk()); // 1x atk // Memperbarui tampilan HP pemain jika diperlukan
-                    checkSlimeStatus(); // Memeriksa status slime
+                    if (enemy instanceof Slime) {
+                        ((Slime) enemy).reduceHP(player.getAtk());
+                        checkEnemyStatus((Slime) enemy);
+                    } else if (enemy instanceof Orc) {
+                        ((Orc) enemy).reduceHP(player.getAtk());
+                        checkEnemyStatus((Orc) enemy);
+                    }
                 });
             }
             case "Skill" -> {
                 player.playSkill();
                 delayAndExecute(1200, () -> {
-                    slime.reduceHP(player.getAtk() * 2); // 2x atk
-                    checkSlimeStatus();
+                    if (enemy instanceof Slime) {
+                        ((Slime) enemy).reduceHP(player.getAtk() * 2);
+                        checkEnemyStatus((Slime) enemy);
+                    } else if (enemy instanceof Orc) {
+                        ((Orc) enemy).reduceHP(player.getAtk() * 2);
+                        checkEnemyStatus((Orc) enemy);
+                    }
                 });
             }
             case "Ultimate" -> {
                 player.playUltimateRight();
-                delayAndExecute(2100, () -> {
-                    slime.reduceHP(player.getAtk() * 4); // 4x atk
-                    checkSlimeStatus();
+                delayAndExecute(1200, () -> {
+                    if (enemy instanceof Slime) {
+                        ((Slime) enemy).reduceHP(player.getAtk() * 4);
+                        checkEnemyStatus((Slime) enemy);
+                    } else if (enemy instanceof Orc) {
+                        ((Orc) enemy).reduceHP(player.getAtk() * 4);
+                        checkEnemyStatus((Orc) enemy);
+                    }
                 });
             }
 
             case "Healing" -> {
                 player.heal();
-                delayAndExecute(2100, () -> {
-                    checkSlimeStatus();
-                    player.reduceHP(slime.getAtk());
+                delayAndExecute(1200, () -> {
+                    if (enemy instanceof Slime) {
+                        ((Slime) enemy).reduceHP(slime.getAtk());
+                        checkEnemyStatus((Slime) enemy);
+                    } else if (enemy instanceof Orc) {
+                        ((Orc) enemy).reduceHP(slime.getAtk());
+                        checkEnemyStatus((Orc) enemy);
+                    }
                 });
+                
             }
         }
         // Slime menyerang setelah delay 2 detik jika slime masih hidup
         delayAndExecute(2500, () -> {
-            if (slime.getHP() > 0) {
-                slime.playWalkLeftAnimation();
+            if (enemy instanceof Slime && ((Slime) enemy).getHP() > 0) {
+                ((Slime) enemy).playWalkLeftAnimation();
                 delayAndExecute(1500, () -> {
-                    player.reduceHP(slime.getAtk()); // Slime menyerang dengan damage 5
-                    hpTextLabel.setText(" " + player.getHP()); // Memperbarui tampilan HP pemain
+                    player.reduceHP(((Slime) enemy).getAtk());
+                    hpTextLabel.setText(" " + player.getHP());
+                });
+            } else if (enemy instanceof Orc && ((Orc) enemy).getHP() > 0) {
+                ((Orc) enemy).playWalkLeftAnimation();
+                delayAndExecute(1500, () -> {
+                    player.reduceHP(((Orc) enemy).getAtk());
+                    hpTextLabel.setText(" " + player.getHP());
                 });
             }
         });
+    }
+
+    private void checkEnemyStatus(Slime slime) {
+        if (slime.getHP() <= 0) {
+            enemiesDefeated++;
+            delayAndExecute(3000, () -> {
+                player.wizardPanel.setVisible(false);
+                synopsisTextArea.setText("Slime telah dikalahkan!");
+                hideBattleOptions();
+            });
+        }
+    }
+
+    private void checkEnemyStatus(Orc orc) {
+        if (orc.getHP() <= 0) {
+            enemiesDefeated++;
+            delayAndExecute(3000, () -> {
+                player.wizardPanel.setVisible(false);
+                synopsisTextArea.setText("Orc telah dikalahkan!");
+                hideBattleOptions();
+            });
+        }
     }
 
     private void showTextComponents() {
@@ -463,17 +538,6 @@ public class Game {
         backgroundBattleText.setVisible(false);
         synopsisTextArea.setVisible(true);
         backgroundText.setVisible(true);
-    }
-
-    private void checkSlimeStatus() {
-        if (slime.getHP() <= 0) {
-            delayAndExecute(3000, () -> {
-                player.wizardPanel.setVisible(false);
-                showTextComponents();
-                synopsisTextArea.setText("Slime telah dikalahkan!");
-                hideBattleOptions();
-            });
-        }
     }
     
     private void hideBattleOptions() {
@@ -532,27 +596,27 @@ public class Game {
         }
     }
 
-    private void returnToPreviousPlace(String direction) {
-        if (direction.equals("Go North")) {
-            if (mapPlace > 3) {  // Pastikan mapPlace valid untuk pergerakan ke atas
-                mapPlace -= 3;
-            }
-        } else if (direction.equals("Go South")) {
-            if (mapPlace < 7) {  // Pastikan mapPlace valid untuk pergerakan ke bawah
-                mapPlace += 3;
-            }
-        } else if (direction.equals("Go West")) {
-            if (mapPlace % 3 != 1) {  // Pastikan pemain tidak keluar dari baris pertama
-                mapPlace -= 1;
-            }
-        } else if (direction.equals("Go East")) {
-            if (mapPlace % 3 != 0) {  // Pastikan pemain tidak keluar dari baris terakhir
-                mapPlace += 1;
-            }
-        }
+    // private void returnToPreviousPlace(String direction) {
+    //     if (direction.equals("Go North")) {
+    //         if (mapPlace > 3) {  // Pastikan mapPlace valid untuk pergerakan ke atas
+    //             mapPlace -= 3;
+    //         }
+    //     } else if (direction.equals("Go South")) {
+    //         if (mapPlace < 7) {  // Pastikan mapPlace valid untuk pergerakan ke bawah
+    //             mapPlace += 3;
+    //         }
+    //     } else if (direction.equals("Go West")) {
+    //         if (mapPlace % 3 != 1) {  // Pastikan pemain tidak keluar dari baris pertama
+    //             mapPlace -= 1;
+    //         }
+    //     } else if (direction.equals("Go East")) {
+    //         if (mapPlace % 3 != 0) {  // Pastikan pemain tidak keluar dari baris terakhir
+    //             mapPlace += 1;
+    //         }
+    //     }
 
-        updateMap();
-    }
+    //     updateMap();
+    // }
 
     public void updateMap() {
         synopsisTextArea.setText("Kamu sekarang berada di tempat " + mapPlace);
