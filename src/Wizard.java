@@ -300,4 +300,10 @@ public class Wizard {
             playHurtAnimation();
         }
     }
+
+    public void levelUp() {
+        this.level++;
+        this.atk += 5;
+        this.hp += 10;
+    }
 }

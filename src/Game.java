@@ -9,7 +9,15 @@ import java.util.Random;
 
 import javax.swing.*;
 
+enum Stage {
+    STAGE_1,
+    STAGE_2,
+    STAGE_3,
+    STAGE_4,
+
+}
 public class Game {
+    private Stage currentStage = Stage.STAGE_1;
 
     String playerName, direction;
     Font gameFont;
@@ -27,10 +35,8 @@ public class Game {
     private int enemiesDefeated = 0; // Track the number of enemies defeated
     private Object enemy;
 
-    private ImageIcon northUp = new ImageIcon(new ImageIcon("Assets/img/N_atas.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
-    private ImageIcon northRight = new ImageIcon(new ImageIcon("Assets/img/N_kanan.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
-    private ImageIcon northDown = new ImageIcon(new ImageIcon("Assets/img/N_bawah.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
-    private ImageIcon northLeft = new ImageIcon(new ImageIcon("Assets/img/N_kiri.png").getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH));
+
+    
 
     public Game() {
 
@@ -205,15 +211,11 @@ public class Game {
                     case "i'm ready":
                         direction = "map5";
                         
-                        // Start a random encounter
-                        startRandomEncounter();
-                        
-                        synopsisTextArea.setText("Kamu bertemu dengan " + (enemy instanceof Slime ? "Slime" : "Orc") + ". Apakah kamu ingin melawannya?");
+                        synopsisTextArea.setText("Apakah Kamu Yakin Ingin Melanjutkan Perjalanan?");
                         // Change the button text for choices
                         choice1.setText("Ya");
                         choice2.setText("Tidak");
                         choice1.setVisible(true);
-                        choice2.setVisible(true);
                         choice3.setVisible(false);
                         choice4.setVisible(false);
                         
@@ -227,18 +229,11 @@ public class Game {
                             @Override
                             public void actionPerformed(ActionEvent event) {
                                 if ("Ya".equals(choice1.getText())) {
-                                    if (enemy instanceof Slime) {
-                                        startFightWithSlime();
-                                    } else if (enemy instanceof Orc) {
-                                        startFightWithOrc();
-                                    }
-                                } else if ("Tidak".equals(choice1.getText())) {
-                                    // Start a new random encounter
-                                    startRandomEncounter();
+                                    startFight();
                                 }
                             }
                         });
-                        break;
+                    break;
                 }
             }
         });        
@@ -306,9 +301,7 @@ public class Game {
                 playerInfoPanel.setLayout(null); // Menggunakan null layout untuk fleksibilitas posisi
                 playerInfoPanel.setBounds(70, 0, 1150, 100); // Ditempatkan lebih atas dari mainTextPanel
                 playerInfoPanel.setOpaque(false); // Panel transparan agar background terlihat
-
-                compassLabel = new JLabel(northUp);
-                compassLabel.setBounds(60, 12, 95, 95); // Posisi gambar mata angin di sebelah kiri
+              
 
                 // Membuat JTextArea untuk nama pemain
                 JTextArea playerNameText = new JTextArea("Player " + playerName + "  [Lv. " + player.getLevel() + "]");
@@ -321,7 +314,6 @@ public class Game {
                 playerNameText.setForeground(Color.WHITE);
                 playerNameText.setFont(gameFont);
 
-                playerInfoPanel.add(compassLabel);
                 playerInfoPanel.add(playerNameText);
 
                 // Menambahkan playerInfoPanel ke layeredPane
@@ -375,29 +367,61 @@ public class Game {
                 displayTextWithDelay(sinopsis, synopsisTextArea, 10, new Runnable() {
                     @Override
                     public void run() {
-                     
                         choice1.setVisible(true);
-                        // choice2.setVisible(true);
-                        // choice3.setVisible(true);
-                        // choice4.setVisible(true);
+                        
                     }
                 });
             }
         });
     }
 
-    private void startFightWithOrc() {
-        synopsisTextArea.setText("Pertarungan dengan Orc dimulai!");
-        player.playIdleAnimation();
-        orc.playIdleAnimation();
-        showBattleOptions(orc);
+    private void startFight() {
+        switch (currentStage) {
+            case STAGE_1:
+                startFightWithSlime();
+                break;
+            case STAGE_2:
+                startFightWithOrc();
+                break;
+            case STAGE_3:
+                break;
+            case STAGE_4:
+                break;
+            
+        }
+    }
+    
+
+    private void updateStage() {
+        switch (currentStage) {
+            case STAGE_1:
+                currentStage = Stage.STAGE_2;
+                break;
+            case STAGE_2:
+                currentStage = Stage.STAGE_3;
+                break;
+            case STAGE_3:
+                currentStage = Stage.STAGE_4;
+                break;
+            case STAGE_4:
+                //
+                break;
+            // tambahkan kode untuk mengupdate stage lainnya
+        }
     }
 
     private void startFightWithSlime() {
-        synopsisTextArea.setText("Pertarungan dengan Slime dimulai!");
+        synopsisTextArea.setText("Stage1: Pertarungan dengan Slime dimulai!");
         player.playIdleAnimation();
         slime.playIdleAnimation();
         showBattleOptions(slime);
+    }
+
+    private void startFightWithOrc() {
+        synopsisTextArea.setText("Stage 2: Pertarungan dengan Orc dimulai!");
+        player.playIdleAnimation();
+        orc.playIdleAnimation();
+        showBattleOptions(orc);
     }
 
     private void showBattleOptions(Object enemy) {
@@ -409,10 +433,10 @@ public class Game {
     
         // Tampilkan semua tombol pilihan
         choice1.setVisible(true);
-        choice2.setVisible(true);
-        choice3.setVisible(true);
-        choice4.setVisible(true);
-    
+        choice2.setVisible(player.getLevel() >= 2);
+        choice3.setVisible(player.getLevel() >= 3);
+        choice4.setVisible(player.getLevel() >= 4);
+
         // Aksi tombol Attack
         choice1.addActionListener(e -> handlePlayerAction("Attack", enemy));
         choice2.addActionListener(e -> handlePlayerAction("Skill", enemy));
@@ -420,22 +444,6 @@ public class Game {
         choice4.addActionListener(e -> handlePlayerAction("Healing", enemy));
     }
 
-    private void startRandomEncounter() {
-        Random random = new Random();
-        int enemyType = random.nextInt(2); 
-    
-        if (enemiesDefeated < 2) {
-            if (enemyType == 0) {
-                enemy = slime; 
-                showTextComponents();
-                startFightWithSlime();
-            } else {
-                enemy = orc;
-                showTextComponents();
-                startFightWithOrc();
-            }
-        }
-    }
 
     private void handlePlayerAction(String actionType, Object enemy) {
         switch (actionType) {
@@ -498,6 +506,7 @@ public class Game {
                 });
             }
         });
+
     }
 
     private void checkEnemyStatus(Mob enemy) {
@@ -505,26 +514,26 @@ public class Game {
             enemiesDefeated++;
             delayAndExecute(3000, () -> {
                 player.wizardPanel.setVisible(false);
-                synopsisTextArea.setText(enemy instanceof Slime ? "Slime telah dikalahkan!" : "Orc telah dikalahkan!");
-                hideBattleOptions();
+                battleTextArea.setText(enemy instanceof Slime ? "Slime telah dikalahkan!" : "Orc telah dikalahkan!");
+                player.levelUp();
+                battleOption();
             });
         }
     }
     
-
-    private void showTextComponents() {
-        battleTextArea.setVisible(false);
-        backgroundBattleText.setVisible(false);
-        synopsisTextArea.setVisible(true);
-        backgroundText.setVisible(true);
-    }
     
-    private void hideBattleOptions() {
+    private void battleOption() {
+        choice1.setText("Lanjut");
         choice1.setVisible(true);
-        choice1.setText("Kembali");
-        choice2.setVisible(false);
-        choice3.setVisible(false);
-        choice4.setVisible(false);
+        choice1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                player.wizardPanel.setVisible(true);
+                updateStage();
+                startFight();
+                choice1.setVisible(false);
+            }
+        });
     }
 
     private void delayAndExecute(int delay, Runnable action) {
@@ -533,94 +542,6 @@ public class Game {
         timer.start();
     }
 
-    private int mapPlace = 5;  // Posisi awal pemain (tengah, posisi 5)
-
-    public void moveNorth() {
-        if (mapPlace > 3) {
-            mapPlace -= 3;  // Bergerak ke utara
-            updateMap();
-            compassLabel.setIcon(northUp);  // Mengubah gambar kompas ke atas
-        } else {
-            synopsisTextArea.setText("Kamu tidak bisa bergerak lebih ke utara.");
-        }
-    }
-
-    public void moveSouth() {
-        if (mapPlace < 7) {
-            mapPlace += 3;  // Bergerak ke selatan
-            updateMap();
-            compassLabel.setIcon(northDown);  // Mengubah gambar kompas ke bawah
-        } else {
-            synopsisTextArea.setText("Kamu tidak bisa bergerak lebih ke selatan.");
-        }
-    }
-
-    public void moveEast() {
-        if (mapPlace != 3 && mapPlace != 6 && mapPlace != 9) {  // Pastikan pemain tidak keluar dari batas peta
-            mapPlace += 1;  // Bergerak ke timur
-            updateMap();
-            compassLabel.setIcon(northRight);  // Mengubah gambar kompas ke kanan
-        } else {
-            synopsisTextArea.setText("Kamu tidak bisa bergerak lebih ke timur.");
-        }
-    }
-
-    public void moveWest() {
-        if (mapPlace != 1 && mapPlace != 4 && mapPlace != 7) {  // Pastikan pemain tidak keluar dari batas peta
-            mapPlace -= 1;  // Bergerak ke barat
-            updateMap();
-            compassLabel.setIcon(northLeft);  // Mengubah gambar kompas ke kiri
-        } else {
-            synopsisTextArea.setText("Kamu tidak bisa bergerak lebih ke barat.");
-        }
-    }
-
-    // private void returnToPreviousPlace(String direction) {
-    //     if (direction.equals("Go North")) {
-    //         if (mapPlace > 3) {  // Pastikan mapPlace valid untuk pergerakan ke atas
-    //             mapPlace -= 3;
-    //         }
-    //     } else if (direction.equals("Go South")) {
-    //         if (mapPlace < 7) {  // Pastikan mapPlace valid untuk pergerakan ke bawah
-    //             mapPlace += 3;
-    //         }
-    //     } else if (direction.equals("Go West")) {
-    //         if (mapPlace % 3 != 1) {  // Pastikan pemain tidak keluar dari baris pertama
-    //             mapPlace -= 1;
-    //         }
-    //     } else if (direction.equals("Go East")) {
-    //         if (mapPlace % 3 != 0) {  // Pastikan pemain tidak keluar dari baris terakhir
-    //             mapPlace += 1;
-    //         }
-    //     }
-
-    //     updateMap();
-    // }
-
-    public void updateMap() {
-        synopsisTextArea.setText("Kamu sekarang berada di tempat " + mapPlace);
-        updateButtonVisibility();
-    }
-
-    public void updateButtonVisibility() {
-        choice1.setVisible(true);  // Go North
-        choice2.setVisible(true);  // Go East
-        choice3.setVisible(true);  // Go South
-        choice4.setVisible(true);  // Go West
-
-        if (mapPlace <= 3) {
-            choice1.setVisible(false);  // Tidak bisa ke utara jika sudah di baris pertama
-        }
-        if (mapPlace >= 7) {
-            choice3.setVisible(false);  // Tidak bisa ke selatan jika sudah di baris terakhir
-        }
-        if (mapPlace == 3 || mapPlace == 6 || mapPlace == 9) {
-            choice2.setVisible(false);  // Tidak bisa ke timur jika sudah di kolom terakhir
-        }
-        if (mapPlace == 1 || mapPlace == 4 || mapPlace == 7) {
-            choice4.setVisible(false);  // Tidak bisa ke barat jika sudah di kolom pertama
-        }
-    }
 
     private void displayTextWithDelay(String text, JTextArea textArea, int delay, Runnable onComplete) {
         SwingWorker<Void, String> worker = new SwingWorker<>() {
