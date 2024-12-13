@@ -40,7 +40,13 @@
 ## Session 3 (5 - 7 Desember 2024)
 
 ### 6 Desember 2024
-
+- Raizul [src/golem] [src/Golem.java] mencari frame golem dan membuat Golem.java
+- Raizul [src/Game.java] memperbaiki code 
 - Olfa [Assets/img] Pencarian assets karakter player
 - Olfa [src/Wizard.java] Pembuatan class wizard yang menampung informasi player
 - Olfa [src/Game.java] Implementasi animasi Wizard ke dalam Game serta testing battle antara player dengan slime
+
+### Session 4 (8 - 14 Desember 2024)
+- Raizul [src/Game.java] : memperbaiki algoritma dalam code
+- Raizul [src/Mob.java] [src/Golem.java] [src/Slime.java] [src/OrcSlime.java]: membuat koneksi database dan memperbaiki pengaksesan frame 
+
