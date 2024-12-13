@@ -40,6 +40,11 @@ public abstract class Mob {
         loadAnimations();
     }    
 
+    // New method to get the mob's name
+    public String getName() {
+        return mobType;
+    }
+
     protected ImageIcon[] loadAnimationFrames(String folderPath, String filePrefix, int frameCount) {
         ImageIcon[] frames = new ImageIcon[frameCount];
         for (int i = 0; i < frameCount; i++) {

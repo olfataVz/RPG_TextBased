@@ -36,8 +36,6 @@ public class Game {
     private Object enemy;
 
 
-    
-
     public Game() {
 
         layeredPane = new JLayeredPane();
@@ -381,8 +379,31 @@ public class Game {
                 startFightWithSlime();
                 break;
             case STAGE_2:
+                mainTextPanel.revalidate();
+                mainTextPanel.repaint();
+                layeredPane.revalidate();
+                layeredPane.repaint();
+
+                String synopsis = "Anda telah mengalahkan Slime!!. Anda mendapatkan pengalaman baru dan memperoleh skill untuk melawan musuh!. Anda terus berjalan untuk menemui boss jahat untuk menghilangkan kekuatan gelap. Sekarang, apakah Anda siap untuk menghadapi tantangan berikutnya?";
+                synopsisTextArea.setText(synopsis);
+
+                displayTextWithDelay(synopsis, synopsisTextArea, 50, () -> {
+                    choice1.setText("Lanjut");
+                    choice1.setVisible(true);
+                    choice1.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            player.wizardPanel.setVisible(true);
+                            player.playRunRightAnimation();
+                            // startFightWithOrc();
+                            choice1.setVisible(false);
+                        }
+                    });
+                });
+                
                 startFightWithOrc();
                 break;
+
             case STAGE_3:
                 break;
             case STAGE_4:
@@ -390,7 +411,6 @@ public class Game {
             
         }
     }
-    
 
     private void updateStage() {
         switch (currentStage) {
@@ -411,7 +431,7 @@ public class Game {
     }
 
     private void startFightWithSlime() {
-        synopsisTextArea.setText("Stage1: Pertarungan dengan Slime dimulai!");
+        synopsisTextArea.setText("Stage 1: Pertarungan dengan Slime dimulai!");
         player.playIdleAnimation();
         slime.playIdleAnimation();
         showBattleOptions(slime);
@@ -514,27 +534,73 @@ public class Game {
             enemiesDefeated++;
             delayAndExecute(3000, () -> {
                 player.wizardPanel.setVisible(false);
-                battleTextArea.setText(enemy instanceof Slime ? "Slime telah dikalahkan!" : "Orc telah dikalahkan!");
+                battleTextArea.setText(enemy.getName() + " telah dikalahkan!");
                 player.levelUp();
-                battleOption();
+                choice1.setText("Lanjut");
+                choice1.setVisible(true);
+                choice1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        choice1.setVisible(false);
+                        updateStage();
+                        currentStage = Stage.STAGE_2;
+                        startFight(); // Lanjutkan pertarungan
+                    }
+                });
+                // Hilangkan teks dan informasi slime setelah dikalahkan
+                slime.setVisible(false);
+                synopsisTextArea.setText("");
+                battleTextArea.setVisible(false);
             });
+    
         }
     }
     
     
-    private void battleOption() {
-        choice1.setText("Lanjut");
-        choice1.setVisible(true);
-        choice1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                player.wizardPanel.setVisible(true);
-                updateStage();
-                startFight();
-                choice1.setVisible(false);
-            }
-        });
-    }
+
+    // private void displayNarasiSelanjutnya() {
+    //     String narasi = "Anda telah mengalahkan Slime!!. Anda mendapatkan pengalaman baru dan memperoleh skill untuk melawan musuh!. Anda terus berjalan untuk menemui boss jahat untuk menghilangkan kekuatan gelap. Sekarang, apakah Anda siap untuk menghadapi tantangan berikutnya?";
+    //     battleTextArea.setBounds(140, 200, 950, 200);
+    //     battleTextArea.setText(narasi);
+
+    //     displayTextWithDelay(narasi, battleTextArea, enemiesDefeated, null);
+
+    //     choice1.setText("Lanjut");
+    //     choice1.setVisible(true);
+    //     choice1.addActionListener(new ActionListener() {
+    //         @Override
+    //         public void actionPerformed(ActionEvent e) {
+    //             player.wizardPanel.setVisible(true);
+    //             updateStage();
+    //             startFight();
+    //             choice1.setVisible(false);
+    //         }
+    //     });
+    // }
+    
+    
+    
+    // private void battleOption() {
+    //     String synopsis = "Anda telah mengalahkan Slime!!. Anda mendapatkan pengalaman baru dan memperoleh skill untuk melawan musuh!. Anda terus berjalan untuk menemui boss jahat untuk menghilangkan kekuatan gelap. Sekarang, apakah Anda siap untuk menghadapi tantangan berikutnya?";
+    //     synopsisTextArea.setText(synopsis);
+    //     synopsisTextArea.setVisible(true);
+    //     displayTextWithDelay(synopsis, synopsisTextArea, 50, () -> {
+    //         choice1.setText("Lanjut");
+    //         choice1.setVisible(true);
+    //         choice1.addActionListener(new ActionListener() {
+    //             @Override
+    //             public void actionPerformed(ActionEvent e) {
+    //                 choice1.setVisible(false);
+    //                 updateStage(); // Atur stage ke STAGE_2
+    //                 // startFight(); // Lanjutkan pertarungan
+    //                 startFightWithOrc();
+
+    //             }
+    //         });
+    //     });
+    // }
+    
+    
 
     private void delayAndExecute(int delay, Runnable action) {
         Timer timer = new Timer(delay, e -> action.run());
