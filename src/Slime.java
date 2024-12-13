@@ -9,11 +9,11 @@ public class Slime extends Mob {
 
     @Override
     protected void loadAnimations() {
-        idleFrames = loadAnimationFrames("Assets/slime/Idle", "idle", 6);
-        walkLeftFrames = loadAnimationFrames("Assets/slime/Walk_Left", "walk-L", 16);
-        walkRightFrames = loadAnimationFrames("Assets/slime/Walk_Right", "walk-R", 16);
-        attackFrames = loadAnimationFrames("Assets/slime/Attack", "attack", 10);
-        hurtFrames = loadAnimationFrames("Assets/slime/Hurt", "hurt", 5);
-        deathFrames = loadAnimationFrames("Assets/slime/Death", "death", 10);
+        idleFrames = loadAnimationFrames("slime", "Idle", 6);
+        walkLeftFrames = loadAnimationFrames("slime", "Walk_Left", 16);
+        walkRightFrames = loadAnimationFrames("slime", "Walk_Right", 16);
+        attackFrames = loadAnimationFrames("slime", "Attack", 10);
+        hurtFrames = loadAnimationFrames("slime", "Hurt", 5);
+        deathFrames = loadAnimationFrames("slime", "Death", 10);
     }
 }

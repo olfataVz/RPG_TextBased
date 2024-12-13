@@ -2,6 +2,7 @@ package src;
 
 import java.awt.*;
 import javax.swing.*;
+import java.sql.*;
 
 public abstract class Mob {
     protected String mobType;
@@ -40,12 +41,29 @@ public abstract class Mob {
         loadAnimations();
     }    
 
-    protected ImageIcon[] loadAnimationFrames(String folderPath, String filePrefix, int frameCount) {
+    protected ImageIcon[] loadAnimationFrames(String mobType, String animationType, int frameCount) {
         ImageIcon[] frames = new ImageIcon[frameCount];
-        for (int i = 0; i < frameCount; i++) {
-            ImageIcon frame = new ImageIcon(folderPath + "/" + filePrefix + (i + 1) + ".png");
-            Image scaledFrame = frame.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-            frames[i] = new ImageIcon(scaledFrame);
+        String url = "jdbc:mysql://localhost:3306/inersia";
+        String username = "root"; 
+        String password = "";     
+
+        String query = "SELECT frame_index, image_data FROM animations WHERE mob_type = ? AND animation_type = ? ORDER BY frame_index ASC";
+        try (Connection conn = DriverManager.getConnection(url, username, password);
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, mobType);
+            stmt.setString(2, animationType);
+            
+            ResultSet rs = stmt.executeQuery();
+            int index = 0;
+            while (rs.next() && index < frameCount) {
+                byte[] imageData = rs.getBytes("image_data");
+                ImageIcon frame = new ImageIcon(imageData);
+                Image scaledFrame = frame.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                frames[index++] = new ImageIcon(scaledFrame);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return frames;
     }

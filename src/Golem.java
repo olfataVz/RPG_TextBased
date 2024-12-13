@@ -9,11 +9,11 @@ public class Golem extends Mob {
 
     @Override
     protected void loadAnimations() {
-        idleFrames = loadAnimationFrames("Assets/golem/Idle", "idle", 18);
-        walkLeftFrames = loadAnimationFrames("Assets/golem/Walk_Left", "walk-L", 12);
-        walkRightFrames = loadAnimationFrames("Assets/golem/Walk_Right", "walk-R", 12);
-        attackFrames = loadAnimationFrames("Assets/golem/Attack", "attack", 12);
-        hurtFrames = loadAnimationFrames("Assets/golem/Hurt", "hurt", 12);
-        deathFrames = loadAnimationFrames("Assets/golem/Death", "death", 15);
+        idleFrames = loadAnimationFrames("golem", "Idle", 18);
+        walkLeftFrames = loadAnimationFrames("golem", "Walk_Left", 12);
+        walkRightFrames = loadAnimationFrames("golem", "Walk_Right", 12);
+        attackFrames = loadAnimationFrames("golem", "Attack", 12);
+        hurtFrames = loadAnimationFrames("golem", "Hurt", 12);
+        deathFrames = loadAnimationFrames("golem", "Death", 15);
     }
 }
