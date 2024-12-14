@@ -22,10 +22,11 @@ public class Game {
     
     JFrame window;
     JLayeredPane layeredPane;
-    JLabel background, titleLogoLabel, slimeLabel, backgroundText, backgroundInfo, compassLabel, hpTextLabel, atkTextLabel, heartLabel, backgroundBattleText, grimoireLabel;
-    JPanel startButtonPanel, exitButtonPanel, mainTextPanel, slimePanel;
+    JLabel background, titleLogoLabel, backgroundText, backgroundInfo, hpTextLabel, atkTextLabel, backgroundBattleText, ultimateLabel, skillLabel, healingLabel;
+    JPanel startButtonPanel, exitButtonPanel, mainTextPanel, spellPanel;
     JButton startButton, exitButton, choice1, choice2, choice3, choice4;
-    JTextArea mainTextArea, synopsisTextArea, battleTextArea, playerNameText;
+    JTextArea mainTextArea, synopsisTextArea, battleTextArea, playerNameText, spellTextArea;
+    ImageIcon skillIcon, healingIcon;
     
     private Wizard player;
     private Slime slime;
@@ -46,9 +47,9 @@ public class Game {
         slime = new Slime(900, 260, 250, 250, 50, 5, 50, layeredPane, this);
         orc = new Orc(900, 260, 250, 250, 100, 10, 100, layeredPane, this);
         karasu = new Karasu(900, 260, 250, 250, 150, 15, 100, layeredPane, this);
-        golem = new Golem(900, 260, 250, 250, 200, 20, 75, layeredPane, this);
+        golem = new Golem(900, 260, 250, 250, 200, 20, 60, layeredPane, this);
         player = new Wizard (90, 215, 250, 250, layeredPane, this, 100, 15, 1, false);
-        grimoireLabel = new JLabel();
+
         class TitleScreenHandler implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -308,7 +309,7 @@ public class Game {
 
                 // Membuat JTextArea untuk nama pemain
                 playerNameText = new JTextArea("Player " + playerName + "  [Lv. " + player.getLevel() + "]");
-                playerNameText.setBounds(165, 45, 500, 40); // Posisi di kiri atas
+                playerNameText.setBounds(80, 45, 500, 40); // Posisi di kiri atas
                 playerNameText.setLineWrap(true);
                 playerNameText.setWrapStyleWord(true);
                 playerNameText.setEditable(false);
@@ -418,7 +419,7 @@ public class Game {
     }
 
     private void startFightWithSlime() {
-        synopsisTextArea.setText("Stage1: Pertarungan dengan Slime dimulai!");
+        synopsisTextArea.setText("Stage 1: Pertarungan dengan Slime dimulai!");
         currentEnemy = slime; // Tetapkan musuh saat ini
         delayAndExecute(3000, () -> {
             synopsisTextArea.setVisible(false);
@@ -457,14 +458,15 @@ public class Game {
     } 
 
     public void foundGrimoire(){
-        ImageIcon grimoire = new ImageIcon("Assets/img/grimoire.png");
-        Image grimoireImage = grimoire.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
-        grimoireLabel = new JLabel(new ImageIcon(grimoireImage));
-        grimoireLabel.setBounds(100, 100, 200, 200);
-        mainTextPanel.add(grimoireLabel);
-        synopsisTextArea.setText("Kamu menemukan Grimore sihir!!");
+        ultimateLabel = new JLabel();
+        ImageIcon ultimate  = new ImageIcon(new ImageIcon("Assets/spell/ultimate.png").getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH));
+        Image ultimateImage = ultimate.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+        ultimateLabel = new JLabel(new ImageIcon(ultimateImage));
+        ultimateLabel.setBounds(435, 160, 150, 150);
+        mainTextPanel.add(ultimateLabel);
+        synopsisTextArea.setText("Kamu menemukan Grimoire sihir!! Ingin Mengambilnya ?");
         delayAndExecute(2000, ()->{
-            grimoireLabel.setVisible(true);
+            ultimateLabel.setVisible(true);
             showNonBattleOption();
         });
 
@@ -484,53 +486,28 @@ public class Game {
     }
     
     private void showNonBattleOption(){
-        choice1.setText("Terima");
+        choice1.setText("Ambil");
         choice1.setVisible(true);
-        
-        choice2.setText("Buang");
-        choice2.setVisible(true);
 
         for (ActionListener al : choice1.getActionListeners()) choice1.removeActionListener(al);
-        for (ActionListener al : choice2.getActionListeners()) choice2.removeActionListener(al);
 
         choice1.addActionListener(e -> {
-            synopsisTextArea.setText("Kamu menerima Grimoire sihir!!\n Kamu sekarang dapat membuka skill Ultimate");
-            player.levelUp();
+            synopsisTextArea.setText("Kamu menerima Grimoire sihir!!\n\nKamu sekarang dapat membuka skill Ultimate");
             player.setGrimoire(true);
             choice1.setVisible(false);
-            choice2.setVisible(false);
             delayAndExecute(2000, () -> {
-                choice1.setText("Lanjut");
                 choice1.setVisible(true);
                 choice1.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        ultimateLabel.setVisible(false);
                         battleOption();
                     }
                 });
             });
         });
-        choice2.addActionListener(e -> {
-            synopsisTextArea.setText("Kamu membuang Grimoire sihir yang berharga!!");
-            choice1.setVisible(false);
-            choice2.setVisible(false);
-            player.setGrimoire(false);
-            delayAndExecute(2000, () -> {
-                choice1.setText("Lanjut");
-                choice1.setVisible(true);
-                choice1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        battleOption();
-                    }
-                });
-            });
-        });
-
         mainTextPanel.revalidate();
         mainTextPanel.repaint();
-
-
     }
 
     private void showBattleOptions(Object enemy) {
@@ -674,47 +651,126 @@ public class Game {
             delayAndExecute(3000, () -> {
                 player.wizardPanel.setVisible(false);
                 enemy.mobPanel.setVisible(false);
-                player.levelUp();
-                updatePlayerNameText();
-                battleOption();
+                if(currentStage != Stage.STAGE_3) {
+                    player.levelUp();
+                    updatePlayerNameText();
+                    if (currentStage == Stage.STAGE_1) {
+                        getSkill();
+                    } else {
+                        battleOption();
+                    }
+                }
             });
         }
     }
 
+    private void getSkill() {
+        battleTextArea.setText("");  // Menghapus teks battle sebelumnya
+        backgroundBattleText.setVisible(false);  // Menyembunyikan background battle
+        backgroundText.setVisible(true);  // Menampilkan background teks
+        synopsisTextArea.setVisible(false);  // Menyembunyikan JTextArea lama
+        
+        // Panel untuk menampilkan teks dan gambar
+        spellPanel = new JPanel();
+        spellPanel.setLayout(null);
+        spellPanel.setBounds(70, 115, 800, 600);  // Atur ukuran dan posisi
+        spellPanel.setOpaque(false);
+        
+        // Menambahkan JTextArea untuk teks
+        spellTextArea = new JTextArea();
+        spellTextArea.setText("""
+            Slime Telah Dikalahkan!
+            Kamu Mendapatkan Spell Book!!
+            
+            \tSpell Book Skill: Fireball 
+            \n\n\n\tSpell Book Healing: Rejuvenant
+            """);
+        spellTextArea.setBounds(100, 25, 800, 200);  // Sesuaikan ukuran agar tidak menutupi battleTextArea
+        spellTextArea.setFont(gameFont);
+        spellTextArea.setForeground(new Color(139, 69, 19));
+        spellTextArea.setBackground(null);
+        spellTextArea.setOpaque(false);
+        spellTextArea.setLineWrap(true);
+        spellTextArea.setWrapStyleWord(true);
+        spellTextArea.setEditable(false);
+        spellPanel.add(spellTextArea);
+        
+        // Menambahkan gambar untuk "Spell Book Skill" dengan skala halus
+        skillIcon = new ImageIcon(new ImageIcon("Assets/spell/skill.png").getImage().getScaledInstance(75, 75, Image.SCALE_SMOOTH));
+        skillLabel = new JLabel(skillIcon);
+        skillLabel.setBounds(85, 90, 75, 75);
+        spellPanel.add(skillLabel);
+        
+        // Menambahkan gambar untuk "Spell Book Healing" dengan skala halus
+        healingIcon = new ImageIcon(new ImageIcon("Assets/spell/healing.png").getImage().getScaledInstance(75, 75, Image.SCALE_SMOOTH));
+        healingLabel = new JLabel(healingIcon);
+        healingLabel.setBounds(85, 185, 75, 75);
+        spellPanel.add(healingLabel);
+        
+        layeredPane.add(spellPanel, Integer.valueOf(2));  // Tambahkan panel ke mainTextPanel
+        spellPanel.setVisible(true);  // Tampilkan panel
+        
+        // Tombol pertama kali menampilkan "Pelajari"
+        choice1.setText("Pelajari");
+        choice1.setVisible(true);
+        choice2.setVisible(false);
+        choice3.setVisible(false);
+        choice4.setVisible(false);
+        
+        // Hapus semua action listener sebelumnya
+        for (ActionListener al : choice1.getActionListeners()) {
+            choice1.removeActionListener(al);
+        }
+        
+        // Tambahkan aksi untuk tombol "Pelajari"
+        choice1.addActionListener(e -> {
+            choice1.setText("Lanjut");  
+            spellTextArea.setVisible(false);  // Menyembunyikan JTextArea
+            skillLabel.setVisible(false);  // Menyembunyikan label skill
+            healingLabel.setVisible(false);  // Menyembunyikan label healing
+            spellPanel.setVisible(false);  // Menyembunyikan seluruh spellPanel
+            
+            // Panggil battleOption setelah "Pelajari" selesai
+            battleOption();
+        });
+    }
+    
     private void battleOption() {
+
+        mainTextPanel.revalidate();
+        mainTextPanel.repaint();
+
+        for (ActionListener al : choice1.getActionListeners()) {
+            choice1.removeActionListener(al);
+        }
+    
+        // Mengatur teks pada synopsisTextArea setelah skill dipelajari
         battleTextArea.setText("");
         backgroundBattleText.setVisible(false);
         backgroundText.setVisible(true);
         synopsisTextArea.setVisible(true);
-        grimoireLabel.setVisible(false);
-    
-        // Gunakan currentEnemy untuk menampilkan teks
         synopsisTextArea.setText(
-            currentEnemy instanceof Slime ? "Slime telah dikalahkan! Ingin melanjutkan ke stage berikutnya? " : 
-            currentEnemy instanceof Orc ? "Orc telah dikalahkan! Ingin melanjutkan ke stage berikutnya? " : 
+            currentEnemy instanceof Slime ? "Kamu Telah Mempelajari Spell Book. Ingin melanjutkan ke stage selanjutnya?" :
+            currentEnemy instanceof Orc ? "Kamu Telah Mengalahkan Orc ! Ingin melanjutkan ke stage berikutnya?" :
             currentEnemy instanceof Karasu ? "Karasu telah dikalahkan! Ingin melanjutkan ke stage berikutnya? " :
             ""
         );
-    
+        
+        // Mengatur tombol untuk melanjutkan ke stage berikutnya
         choice1.setText("Lanjut");
         choice1.setVisible(true);
         choice2.setVisible(false);
         choice3.setVisible(false);
         choice4.setVisible(false);
-    
-        // Hapus semua listener sebelumnya untuk menghindari duplikasi
-        for (ActionListener al : choice1.getActionListeners()) {
-            choice1.removeActionListener(al);
-        }
-    
+        
         choice1.addActionListener(e -> {
-            choice1.setVisible(false);
-            updateStage();
-            startFight();
+            // Sembunyikan elemen-elemen yang terkait dengan battle dan skill
+            choice1.setVisible(false);  // Sembunyikan tombol "Lanjut"
+            updateStage();              // Update stage ke tahap berikutnya
+            startFight();               // Mulai pertarungan di stage berikutnya
         });
     }
     
-
     private void delayAndExecute(int delay, Runnable action) {
         Timer timer = new Timer(delay, e -> action.run());
         timer.setRepeats(false); // Timer hanya berjalan sekali
