@@ -11,13 +11,14 @@ public class Wizard {
     protected JLabel wizardLabel;
     protected Timer animationTimer;
     protected int frameIndex = 0;
+    protected boolean grimoire;
 
     protected ImageIcon[] idleFrames, runLeftFrames, runRightFrames, attackFrames, skillFrames, 
                           skillAnimationFrames, ultimateFrames, hurtFrames, deathFrames;
 
     Game game;
 
-    public Wizard(int startX, int startY, int width, int height, JLayeredPane layeredPane, Game game, int hp, int atk, int level) {
+    public Wizard(int startX, int startY, int width, int height, JLayeredPane layeredPane, Game game, int hp, int atk, int level, boolean grimoire) {
         this.x = startX;
         this.y = startY;
         this.width = width;
@@ -27,6 +28,7 @@ public class Wizard {
         this.hp = hp;
         this.atk = atk;
         this.level = level;
+        this.grimoire = grimoire;
 
         wizardPanel = new JPanel();
         wizardPanel.setBounds(x, y, width, height);
@@ -279,6 +281,10 @@ public class Wizard {
         }
     }
 
+    public void setGrimoire(boolean grimoire) {
+        this.grimoire = grimoire;
+    }
+
     public int getAtk() {
         return atk;
     }
@@ -289,6 +295,10 @@ public class Wizard {
 
     public int getLevel() {
         return level;
+    }
+
+    public boolean getGrimoire() {
+        return grimoire;
     }
 
     public void reduceHP(int damage) {

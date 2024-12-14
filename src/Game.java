@@ -5,8 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
-
 import javax.swing.*;
 
 enum Stage {
@@ -14,34 +12,43 @@ enum Stage {
     STAGE_2,
     STAGE_3,
     STAGE_4,
+    STAGE_5,
 
 }
 public class Game {
-    private Stage currentStage = Stage.STAGE_1;
-
+    
     String playerName, direction;
     Font gameFont;
-
+    
     JFrame window;
     JLayeredPane layeredPane;
-    JLabel background, titleLogoLabel, slimeLabel, backgroundText, backgroundInfo, compassLabel, hpTextLabel, atkTextLabel, backgroundBattleText;
+    JLabel background, titleLogoLabel, slimeLabel, backgroundText, backgroundInfo, compassLabel, hpTextLabel, atkTextLabel, heartLabel, backgroundBattleText, grimoireLabel;
     JPanel startButtonPanel, exitButtonPanel, mainTextPanel, slimePanel;
     JButton startButton, exitButton, choice1, choice2, choice3, choice4;
-    JTextArea mainTextArea, synopsisTextArea, battleTextArea;
-
+    JTextArea mainTextArea, synopsisTextArea, battleTextArea, playerNameText;
+    
     private Wizard player;
     private Slime slime;
     private Orc orc;
-    private int enemiesDefeated = 0; // Track the number of enemies defeated
-    private Object enemy;
+    private Golem golem;
+    private Karasu karasu;
+    // private int enemiesDefeated = 0; // Track the number of enemies defeated
+    // private Object enemy;
+    
+    private Stage currentStage = Stage.STAGE_1;
+    private Mob currentEnemy;
 
+    
 
     public Game() {
 
         layeredPane = new JLayeredPane();
         slime = new Slime(900, 260, 250, 250, 50, 5, 50, layeredPane, this);
         orc = new Orc(900, 260, 250, 250, 100, 10, 100, layeredPane, this);
-        player = new Wizard (90, 215, 250, 250, layeredPane, this, 100, 15, 1);
+        karasu = new Karasu(900, 260, 250, 250, 150, 15, 100, layeredPane, this);
+        golem = new Golem(900, 260, 250, 250, 200, 20, 75, layeredPane, this);
+        player = new Wizard (90, 215, 250, 250, layeredPane, this, 100, 15, 1, false);
+        grimoireLabel = new JLabel();
         class TitleScreenHandler implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -136,7 +143,6 @@ public class Game {
         window.setVisible(true);
     }
 
-
     public void createGameScreen() {
         titleLogoLabel.setVisible(false);
         startButton.setVisible(false);
@@ -207,7 +213,6 @@ public class Game {
             public void actionPerformed(ActionEvent e) {
                 switch (choice1.getText()) {
                     case "i'm ready":
-                        direction = "map5";
                         
                         synopsisTextArea.setText("Apakah Kamu Yakin Ingin Melanjutkan Perjalanan?");
                         // Change the button text for choices
@@ -219,16 +224,16 @@ public class Game {
                         
                         // Revalidate and repaint to ensure UI updates
                         mainTextPanel.revalidate();
-                        mainTextPanel.repaint();
-                        
+                        mainTextPanel.repaint(); 
     
                         // Add action listener for "Ya" and "Tidak" choices
                         choice1.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent event) {
                                 if ("Ya".equals(choice1.getText())) {
-                                    startFight();
+                                    choice1.setVisible(false);
                                 }
+                                startFight();
                             }
                         });
                     break;
@@ -236,21 +241,21 @@ public class Game {
             }
         });        
 
-        choice2 = new JButton("go East");
+        choice2 = new JButton();
         choice2.setFont(gameFont); 
         choice2.setBounds(470, 430, 180, 25); // Posisi yang berbeda
         choice2.setVisible(false);
         choice2.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice2);
 
-        choice3 = new JButton("go South");
+        choice3 = new JButton();
         choice3.setFont(gameFont); 
         choice3.setBounds(470, 460, 180, 25); // Posisi yang berbeda
         choice3.setVisible(false);
         choice3.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(choice3);
 
-        choice4 = new JButton("go West");
+        choice4 = new JButton();
         choice4.setFont(gameFont); 
         choice4.setBounds(470, 490, 180, 25); // Posisi yang berbeda
         choice4.setVisible(false);
@@ -302,7 +307,7 @@ public class Game {
               
 
                 // Membuat JTextArea untuk nama pemain
-                JTextArea playerNameText = new JTextArea("Player " + playerName + "  [Lv. " + player.getLevel() + "]");
+                playerNameText = new JTextArea("Player " + playerName + "  [Lv. " + player.getLevel() + "]");
                 playerNameText.setBounds(165, 45, 500, 40); // Posisi di kiri atas
                 playerNameText.setLineWrap(true);
                 playerNameText.setWrapStyleWord(true);
@@ -323,7 +328,6 @@ public class Game {
                 // Membuat JLabel untuk gambar Heart (HP) dan menambahkan nilai HP
                 JLabel heartLabel = new JLabel(heartIcon);
                 heartLabel.setBounds(740, 25, 60, 60); // Posisi gambar heart
-
                 hpTextLabel = new JLabel(" " + player.getHP()); // Menambahkan nilai HP setelah gambar
                 hpTextLabel.setBounds(780, 40, 100, 35); // Posisi teks HP setelah gambar
                 hpTextLabel.setForeground(new Color(184, 18, 18));
@@ -332,7 +336,6 @@ public class Game {
                 // Membuat JLabel untuk gambar Attack (ATK) dan menambahkan nilai ATK
                 JLabel attackLabel = new JLabel(attackIcon);
                 attackLabel.setBounds(880, 25, 60, 60); // Posisi gambar attack
-
                 atkTextLabel = new JLabel(" " + player.getAtk()); // Menambahkan nilai ATK setelah gambar
                 atkTextLabel.setBounds(920, 40, 100, 35); // Posisi teks ATK setelah gambar
                 atkTextLabel.setForeground(new Color(21, 89, 191));
@@ -362,15 +365,16 @@ public class Game {
                 synopsisTextArea.setEditable(false);
                 layeredPane.add(synopsisTextArea, Integer.valueOf(2)); // Add with a higher z-index
                                 
-                displayTextWithDelay(sinopsis, synopsisTextArea, 10, new Runnable() {
-                    @Override
-                    public void run() {
-                        choice1.setVisible(true);
-                        
-                    }
+                displayTextWithDelay(sinopsis, synopsisTextArea, 10, () -> {
+                    choice1.setVisible(true);
                 });
             }
         });
+    }
+    public void updatePlayerNameText() {
+        playerNameText.setText("Player " + playerName + "  [Lv. " + player.getLevel() + "]");
+        atkTextLabel.setText(" " + player.getAtk());
+        hpTextLabel.setText(" " + player.getHP());
     }
 
     private void startFight() {
@@ -379,38 +383,20 @@ public class Game {
                 startFightWithSlime();
                 break;
             case STAGE_2:
-                mainTextPanel.revalidate();
-                mainTextPanel.repaint();
-                layeredPane.revalidate();
-                layeredPane.repaint();
-
-                String synopsis = "Anda telah mengalahkan Slime!!. Anda mendapatkan pengalaman baru dan memperoleh skill untuk melawan musuh!. Anda terus berjalan untuk menemui boss jahat untuk menghilangkan kekuatan gelap. Sekarang, apakah Anda siap untuk menghadapi tantangan berikutnya?";
-                synopsisTextArea.setText(synopsis);
-
-                displayTextWithDelay(synopsis, synopsisTextArea, 50, () -> {
-                    choice1.setText("Lanjut");
-                    choice1.setVisible(true);
-                    choice1.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            player.wizardPanel.setVisible(true);
-                            player.playRunRightAnimation();
-                            // startFightWithOrc();
-                            choice1.setVisible(false);
-                        }
-                    });
-                });
-                
                 startFightWithOrc();
                 break;
-
             case STAGE_3:
+                foundGrimoire();
                 break;
             case STAGE_4:
-                break;
-            
+                startFightWithKarasu();
+                break;   
+            case STAGE_5:
+                startFightWithGolem();
+                break;       
         }
     }
+    
 
     private void updateStage() {
         switch (currentStage) {
@@ -424,47 +410,169 @@ public class Game {
                 currentStage = Stage.STAGE_4;
                 break;
             case STAGE_4:
-                //
+                currentStage = Stage.STAGE_5;
                 break;
-            // tambahkan kode untuk mengupdate stage lainnya
+            case STAGE_5:
+                break;
         }
     }
 
     private void startFightWithSlime() {
-        synopsisTextArea.setText("Stage 1: Pertarungan dengan Slime dimulai!");
-        player.playIdleAnimation();
-        slime.playIdleAnimation();
-        showBattleOptions(slime);
+        synopsisTextArea.setText("Stage1: Pertarungan dengan Slime dimulai!");
+        currentEnemy = slime; // Tetapkan musuh saat ini
+        delayAndExecute(3000, () -> {
+            synopsisTextArea.setVisible(false);
+            backgroundBattleText.setVisible(true);
+            player.wizardPanel.setVisible(true);
+            player.playIdleAnimation();
+            currentEnemy.playIdleAnimation();
+            showBattleOptions(currentEnemy);
+        });
     }
-
+    
     private void startFightWithOrc() {
         synopsisTextArea.setText("Stage 2: Pertarungan dengan Orc dimulai!");
-        player.playIdleAnimation();
-        orc.playIdleAnimation();
-        showBattleOptions(orc);
+        currentEnemy = orc; // Tetapkan musuh saat ini
+        delayAndExecute(3000, () -> {
+            synopsisTextArea.setVisible(false);
+            backgroundBattleText.setVisible(true);
+            player.wizardPanel.setVisible(true);
+            player.playIdleAnimation();
+            currentEnemy.playIdleAnimation();
+            showBattleOptions(currentEnemy);
+        });
+    }
+
+    private void startFightWithKarasu() {
+        synopsisTextArea.setText("Stage 4: Pertarungan dengan Karasu dimulai!");
+        currentEnemy = karasu; // Tetapkan musuh saat ini
+        delayAndExecute(3000, () -> {
+            synopsisTextArea.setVisible(false);
+            backgroundBattleText.setVisible(true);
+            player.wizardPanel.setVisible(true);
+            player.playIdleAnimation();
+            currentEnemy.playIdleAnimation();
+            showBattleOptions(currentEnemy);
+        });
+    } 
+
+    public void foundGrimoire(){
+        ImageIcon grimoire = new ImageIcon("Assets/img/grimoire.png");
+        Image grimoireImage = grimoire.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+        grimoireLabel = new JLabel(new ImageIcon(grimoireImage));
+        grimoireLabel.setBounds(100, 100, 200, 200);
+        mainTextPanel.add(grimoireLabel);
+        synopsisTextArea.setText("Kamu menemukan Grimore sihir!!");
+        delayAndExecute(2000, ()->{
+            grimoireLabel.setVisible(true);
+            showNonBattleOption();
+        });
+
+    }
+
+    private void startFightWithGolem() {
+        synopsisTextArea.setText("Stage Boss: Pertarungan dengan Golem dimulai!");
+        currentEnemy = golem; // Tetapkan musuh saat ini
+        delayAndExecute(3000, () -> {
+            synopsisTextArea.setVisible(false);
+            backgroundBattleText.setVisible(true);
+            player.wizardPanel.setVisible(true);
+            player.playIdleAnimation();
+            currentEnemy.playIdleAnimation();
+            showBattleOptions(currentEnemy);
+        });
+    }
+    
+    private void showNonBattleOption(){
+        choice1.setText("Terima");
+        choice1.setVisible(true);
+        
+        choice2.setText("Buang");
+        choice2.setVisible(true);
+
+        for (ActionListener al : choice1.getActionListeners()) choice1.removeActionListener(al);
+        for (ActionListener al : choice2.getActionListeners()) choice2.removeActionListener(al);
+
+        choice1.addActionListener(e -> {
+            synopsisTextArea.setText("Kamu menerima Grimoire sihir!!\n Kamu sekarang dapat membuka skill Ultimate");
+            player.levelUp();
+            player.setGrimoire(true);
+            choice1.setVisible(false);
+            choice2.setVisible(false);
+            delayAndExecute(2000, () -> {
+                choice1.setText("Lanjut");
+                choice1.setVisible(true);
+                choice1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        battleOption();
+                    }
+                });
+            });
+        });
+        choice2.addActionListener(e -> {
+            synopsisTextArea.setText("Kamu membuang Grimoire sihir yang berharga!!");
+            choice1.setVisible(false);
+            choice2.setVisible(false);
+            player.setGrimoire(false);
+            delayAndExecute(2000, () -> {
+                choice1.setText("Lanjut");
+                choice1.setVisible(true);
+                choice1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        battleOption();
+                    }
+                });
+            });
+        });
+
+        mainTextPanel.revalidate();
+        mainTextPanel.repaint();
+
+
     }
 
     private void showBattleOptions(Object enemy) {
-        // Set teks pada tombol
-        choice1.setText("Attack");
-        choice2.setText("Skill");
-        choice3.setText("Ultimate");
-        choice4.setText("Healing");
+        // Hapus semua listener lama
+        for (ActionListener al : choice1.getActionListeners()) choice1.removeActionListener(al);
+        for (ActionListener al : choice2.getActionListeners()) choice2.removeActionListener(al);
+        for (ActionListener al : choice3.getActionListeners()) choice3.removeActionListener(al);
+        for (ActionListener al : choice4.getActionListeners()) choice4.removeActionListener(al);
     
-        // Tampilkan semua tombol pilihan
+        // Atur visibilitas default
         choice1.setVisible(true);
-        choice2.setVisible(player.getLevel() >= 2);
-        choice3.setVisible(player.getLevel() >= 3);
-        choice4.setVisible(player.getLevel() >= 4);
-
-        // Aksi tombol Attack
+        choice2.setVisible(true);
+        choice3.setVisible(true);
+        choice4.setVisible(true);
+    
+        // Set teks dan aksi tombol
+        choice1.setText("Attack");
         choice1.addActionListener(e -> handlePlayerAction("Attack", enemy));
-        choice2.addActionListener(e -> handlePlayerAction("Skill", enemy));
-        choice3.addActionListener(e -> handlePlayerAction("Ultimate", enemy));
-        choice4.addActionListener(e -> handlePlayerAction("Healing", enemy));
-    }
+    
+        if (player.getLevel() >= 2) {
+            choice2.setText("Skill");
+            choice2.addActionListener(e -> handlePlayerAction("Skill", enemy));
+            
+            choice4.setText("Healing");
+            choice4.addActionListener(e -> handlePlayerAction("Healing", enemy));
+    
+            if (player.getGrimoire() == true) {
+                choice3.setText("Ultimate");
+                choice3.addActionListener(e -> handlePlayerAction("Ultimate", enemy));
+            } 
 
-
+        } else {
+            choice2.setText("-");
+            choice3.setText("-");
+            choice4.setText("-");
+        }
+    
+        // Refresh panel
+        mainTextPanel.revalidate();
+        mainTextPanel.repaint();
+    }    
+    
     private void handlePlayerAction(String actionType, Object enemy) {
         switch (actionType) {
             case "Attack" -> {
@@ -477,7 +585,13 @@ public class Game {
                     } else if (enemy instanceof Orc) {
                         ((Orc) enemy).reduceHP(player.getAtk());
                         checkEnemyStatus((Orc) enemy);
-                    }
+                    } else if (enemy instanceof Karasu) {
+                        ((Karasu) enemy).reduceHP(player.getAtk());
+                        checkEnemyStatus((Karasu) enemy);
+                    } else if (enemy instanceof Golem) {
+                        ((Golem) enemy).reduceHP(player.getAtk());
+                        checkEnemyStatus((Golem) enemy);
+                    }  
                 });
             }
             case "Skill" -> {
@@ -489,7 +603,13 @@ public class Game {
                     } else if (enemy instanceof Orc) {
                         ((Orc) enemy).reduceHP(player.getAtk() * 2);
                         checkEnemyStatus((Orc) enemy);
-                    }
+                    } else if (enemy instanceof Karasu) {
+                        ((Karasu) enemy).reduceHP(player.getAtk() * 2);
+                        checkEnemyStatus((Karasu) enemy);
+                    } else if (enemy instanceof Golem) {
+                        ((Golem) enemy).reduceHP(player.getAtk() * 2);
+                        checkEnemyStatus((Golem) enemy);
+                    }  
                 });
             }
             case "Ultimate" -> {
@@ -501,7 +621,13 @@ public class Game {
                     } else if (enemy instanceof Orc) {
                         ((Orc) enemy).reduceHP(player.getAtk() * 4);
                         checkEnemyStatus((Orc) enemy);
-                    }
+                    } else if (enemy instanceof Karasu) {
+                        ((Karasu) enemy).reduceHP(player.getAtk() * 4);
+                        checkEnemyStatus((Karasu) enemy);
+                    } else if (enemy instanceof Golem) {
+                        ((Golem) enemy).reduceHP(player.getAtk() * 4);
+                        checkEnemyStatus((Golem) enemy);
+                    }  
                 });
             }
 
@@ -510,6 +636,7 @@ public class Game {
                 hpTextLabel.setText(" " + player.getHP());
             }
         }
+
         // Slime menyerang setelah delay 2 detik jika slime masih hidup
         delayAndExecute(3500, () -> {
             if (enemy instanceof Slime && ((Slime) enemy).getHP() > 0) {
@@ -524,6 +651,18 @@ public class Game {
                     player.reduceHP(((Orc) enemy).getAtk());
                     hpTextLabel.setText(" " + player.getHP());
                 });
+            } else if (enemy instanceof Karasu && ((Karasu) enemy).getHP() > 0) {
+                ((Karasu) enemy).playWalkLeftAnimation();
+                delayAndExecute(1500, () -> {
+                    player.reduceHP(((Karasu) enemy).getAtk());
+                    hpTextLabel.setText(" " + player.getHP());
+                });
+            } else if (enemy instanceof Golem && ((Golem) enemy).getHP() > 0) {
+                ((Golem) enemy).playWalkLeftAnimation();
+                delayAndExecute(1500, () -> {
+                    player.reduceHP(((Golem) enemy).getAtk());
+                    hpTextLabel.setText(" " + player.getHP());
+                });
             }
         });
 
@@ -531,75 +670,49 @@ public class Game {
 
     private void checkEnemyStatus(Mob enemy) {
         if (enemy.getHP() <= 0) {
-            enemiesDefeated++;
+            battleTextArea.setVisible(true);
             delayAndExecute(3000, () -> {
                 player.wizardPanel.setVisible(false);
-                battleTextArea.setText(enemy.getName() + " telah dikalahkan!");
+                enemy.mobPanel.setVisible(false);
                 player.levelUp();
-                choice1.setText("Lanjut");
-                choice1.setVisible(true);
-                choice1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        choice1.setVisible(false);
-                        updateStage();
-                        currentStage = Stage.STAGE_2;
-                        startFight(); // Lanjutkan pertarungan
-                    }
-                });
-                // Hilangkan teks dan informasi slime setelah dikalahkan
-                slime.setVisible(false);
-                synopsisTextArea.setText("");
-                battleTextArea.setVisible(false);
+                updatePlayerNameText();
+                battleOption();
             });
-    
         }
     }
-    
-    
 
-    // private void displayNarasiSelanjutnya() {
-    //     String narasi = "Anda telah mengalahkan Slime!!. Anda mendapatkan pengalaman baru dan memperoleh skill untuk melawan musuh!. Anda terus berjalan untuk menemui boss jahat untuk menghilangkan kekuatan gelap. Sekarang, apakah Anda siap untuk menghadapi tantangan berikutnya?";
-    //     battleTextArea.setBounds(140, 200, 950, 200);
-    //     battleTextArea.setText(narasi);
-
-    //     displayTextWithDelay(narasi, battleTextArea, enemiesDefeated, null);
-
-    //     choice1.setText("Lanjut");
-    //     choice1.setVisible(true);
-    //     choice1.addActionListener(new ActionListener() {
-    //         @Override
-    //         public void actionPerformed(ActionEvent e) {
-    //             player.wizardPanel.setVisible(true);
-    //             updateStage();
-    //             startFight();
-    //             choice1.setVisible(false);
-    //         }
-    //     });
-    // }
+    private void battleOption() {
+        battleTextArea.setText("");
+        backgroundBattleText.setVisible(false);
+        backgroundText.setVisible(true);
+        synopsisTextArea.setVisible(true);
+        grimoireLabel.setVisible(false);
     
+        // Gunakan currentEnemy untuk menampilkan teks
+        synopsisTextArea.setText(
+            currentEnemy instanceof Slime ? "Slime telah dikalahkan! Ingin melanjutkan ke stage berikutnya? " : 
+            currentEnemy instanceof Orc ? "Orc telah dikalahkan! Ingin melanjutkan ke stage berikutnya? " : 
+            currentEnemy instanceof Karasu ? "Karasu telah dikalahkan! Ingin melanjutkan ke stage berikutnya? " :
+            ""
+        );
     
+        choice1.setText("Lanjut");
+        choice1.setVisible(true);
+        choice2.setVisible(false);
+        choice3.setVisible(false);
+        choice4.setVisible(false);
     
-    // private void battleOption() {
-    //     String synopsis = "Anda telah mengalahkan Slime!!. Anda mendapatkan pengalaman baru dan memperoleh skill untuk melawan musuh!. Anda terus berjalan untuk menemui boss jahat untuk menghilangkan kekuatan gelap. Sekarang, apakah Anda siap untuk menghadapi tantangan berikutnya?";
-    //     synopsisTextArea.setText(synopsis);
-    //     synopsisTextArea.setVisible(true);
-    //     displayTextWithDelay(synopsis, synopsisTextArea, 50, () -> {
-    //         choice1.setText("Lanjut");
-    //         choice1.setVisible(true);
-    //         choice1.addActionListener(new ActionListener() {
-    //             @Override
-    //             public void actionPerformed(ActionEvent e) {
-    //                 choice1.setVisible(false);
-    //                 updateStage(); // Atur stage ke STAGE_2
-    //                 // startFight(); // Lanjutkan pertarungan
-    //                 startFightWithOrc();
-
-    //             }
-    //         });
-    //     });
-    // }
+        // Hapus semua listener sebelumnya untuk menghindari duplikasi
+        for (ActionListener al : choice1.getActionListeners()) {
+            choice1.removeActionListener(al);
+        }
     
+        choice1.addActionListener(e -> {
+            choice1.setVisible(false);
+            updateStage();
+            startFight();
+        });
+    }
     
 
     private void delayAndExecute(int delay, Runnable action) {

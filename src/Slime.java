@@ -16,9 +16,4 @@ public class Slime extends Mob {
         hurtFrames = loadAnimationFrames("slime", "Hurt", 5);
         deathFrames = loadAnimationFrames("slime", "Death", 10);
     }
-
-    public void setVisible(boolean b) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
-    }
 }
