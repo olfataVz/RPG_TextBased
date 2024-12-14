@@ -142,6 +142,8 @@ public class Game {
 
         window.add(layeredPane);    
         window.setVisible(true);
+
+        new BackgroundMusic("bgm.wav").start();
     }
 
     public void createGameScreen() {
