@@ -13,13 +13,12 @@ enum Stage {
     STAGE_3,
     STAGE_4,
     STAGE_5,
-
+    STAGE_END,
 }
 public class Game {
     
-    String playerName, direction;
+    String playerName;
     Font gameFont;
-    
     JFrame window;
     JLayeredPane layeredPane;
     JLabel background, titleLogoLabel, backgroundText, backgroundInfo, hpTextLabel, atkTextLabel, backgroundBattleText, ultimateLabel, skillLabel, healingLabel;
@@ -33,13 +32,9 @@ public class Game {
     private Orc orc;
     private Golem golem;
     private Karasu karasu;
-    // private int enemiesDefeated = 0; // Track the number of enemies defeated
-    // private Object enemy;
     
     private Stage currentStage = Stage.STAGE_1;
     private Mob currentEnemy;
-
-    
 
     public Game() {
 
@@ -74,7 +69,8 @@ public class Game {
         window = new JFrame("INERSIA: RPG Text-Based Game");
         window.setSize(1251, 700);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        window.setResizable(false);
+     
         layeredPane.setBounds(0, 0, 1251, 700);
 
         ImageIcon bgImage = new ImageIcon("Assets/img/background.png"); 
@@ -95,7 +91,7 @@ public class Game {
         backgroundBattleText = new JLabel(new ImageIcon(scaledbattleText));
         backgroundBattleText.setBounds(70, 150, 1100, 180); 
         backgroundBattleText.setVisible(false);
-        layeredPane.add(backgroundBattleText, Integer.valueOf(1));
+        layeredPane.add(backgroundBattleText, Integer.valueOf(2));
 
         ImageIcon bgInfo = new ImageIcon("Assets/img/bg_info.png"); 
         Image scaledBgInfo = bgInfo.getImage().getScaledInstance(1150, 90, Image.SCALE_SMOOTH);
@@ -140,6 +136,7 @@ public class Game {
         exitButton.addActionListener(e -> System.exit(0)); // Fungsi keluar program
         layeredPane.add(exitButtonPanel, Integer.valueOf(1));
 
+        window.setIconImage(logoImage.getImage());
         window.add(layeredPane);    
         window.setVisible(true);
 
@@ -159,9 +156,10 @@ public class Game {
         mainTextPanel.setLayout(null); 
         layeredPane.add(mainTextPanel, Integer.valueOf(2));
         backgroundText.setVisible(true);
-        mainTextArea = new JTextArea("\tWelcome to Inersia" 
-                                    + "\n===============================" 
-                                    + "\nPlease Insert Your Name:");
+        mainTextArea = new JTextArea("""
+                                        Selamat Datang di Inersia
+                                     ===============================
+                                     Silahkan Input Nama Anda:""");
         mainTextArea.setOpaque(false);
         // mainTextArea.setForeground(new Color(210, 180, 140)); // Warna Tan (cokelat muda)
         mainTextArea.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
@@ -181,7 +179,7 @@ public class Game {
         battleTextArea.setWrapStyleWord(true); // Membungkus teks per kata
         battleTextArea.setEditable(false); // Tidak dapat diedit pengguna
         battleTextArea.setVisible(false); // Default tidak terlihat
-        layeredPane.add(battleTextArea, Integer.valueOf(2)); 
+        layeredPane.add(battleTextArea, Integer.valueOf(3)); 
 
         JTextField nameField = new JTextField();
         nameField.setFont(gameFont); 
@@ -204,7 +202,7 @@ public class Game {
         nextButton.setForeground(new Color(139, 69, 19));
         mainTextPanel.add(nextButton);
 
-        choice1 = new JButton("i'm ready");
+        choice1 = new JButton("Siap");
         choice1.setFont(gameFont); 
         choice1.setBounds(470, 400, 180, 25); // Posisi yang berbeda
         choice1.setVisible(false);
@@ -215,8 +213,7 @@ public class Game {
             @Override
             public void actionPerformed(ActionEvent e) {
                 switch (choice1.getText()) {
-                    case "i'm ready":
-                        
+                    case "Siap" -> {
                         synopsisTextArea.setText("Apakah Kamu Yakin Ingin Melanjutkan Perjalanan?");
                         // Change the button text for choices
                         choice1.setText("Ya");
@@ -227,8 +224,8 @@ public class Game {
                         
                         // Revalidate and repaint to ensure UI updates
                         mainTextPanel.revalidate();
-                        mainTextPanel.repaint(); 
-    
+                        mainTextPanel.repaint();
+                        
                         // Add action listener for "Ya" and "Tidak" choices
                         choice1.addActionListener(new ActionListener() {
                             @Override
@@ -239,7 +236,7 @@ public class Game {
                                 startFight();
                             }
                         });
-                    break;
+                    }
                 }
             }
         });        
@@ -277,16 +274,14 @@ public class Game {
                     mainTextPanel.revalidate();
                     mainTextPanel.repaint();
         
-                    String fullText = "\tWelcome to Inersia"
-                                    + "\n==============================="
-                                    + "\nPlayer " + playerName
-                                    + "\nYour Base HP is " + player.getHP() + " and ATK is " + player.getAtk();
+                    String fullText = """
+                                         Selamat Datang di Inersia
+                                      ===============================
+                                      Player """ + playerName
+                                    + "\nHP Awalmu " + player.getHP() + " dan ATK " + player.getAtk();
         
-                    displayTextWithDelay(fullText, mainTextArea, 10, new Runnable() {
-                        @Override
-                        public void run() {
-                            nextButton.setVisible(true); // Tampilkan tombol setelah teks selesai
-                        }
+                    displayTextWithDelay(fullText, mainTextArea, 20, () -> {
+                        nextButton.setVisible(true); // Tampilkan tombol setelah teks selesai
                     });
                 } else {
                     displayTextWithDelay("Please enter a valid name to proceed.", mainTextArea, 50, null);
@@ -356,8 +351,9 @@ public class Game {
                 
                 // Add a new JTextArea for synopsys
                 mainTextPanel.setBounds(70, 75, 1150, 550); 
-                String sinopsis = "Welcome to the world of Inersia, a universe brimming with mystery and adventure. Here, you will embark on an epic journey as a chosen hero destined to save the land from an encroaching darkness due to the evil boss."
-                                    + "\n\n\nU are now in the town, You continue walking towards the city of darkness to find the boss. Along the way, you encounter an enemy! Are you ready to fight it?";
+                String sinopsis = """
+                                  Selamat datang di dunia Inersia, alam semesta yang penuh dengan misteri dan petualangan. Di sini, Anda akan memulai perjalanan epik sebagai pahlawan terpilih yang ditakdirkan untuk menyelamatkan negeri dari kegelapan yang merajalela karena bos jahat. 
+                                  \nAnda sekarang berada di kota, Anda terus berjalan menuju kota kegelapan untuk menemukan bos. Di sepanjang jalan, Anda bertemu musuh! Apakah Anda siap untuk melawannya?""";
                 synopsisTextArea = new JTextArea(sinopsis);
                 synopsisTextArea.setFont(gameFont);
                 synopsisTextArea.setForeground(new Color(139, 69, 19)); // Warna SaddleBrown (cokelat tua)
@@ -368,7 +364,7 @@ public class Game {
                 synopsisTextArea.setEditable(false);
                 layeredPane.add(synopsisTextArea, Integer.valueOf(2)); // Add with a higher z-index
                                 
-                displayTextWithDelay(sinopsis, synopsisTextArea, 10, () -> {
+                displayTextWithDelay(sinopsis, synopsisTextArea, 15, () -> {
                     choice1.setVisible(true);
                 });
             }
@@ -382,41 +378,57 @@ public class Game {
 
     private void startFight() {
         switch (currentStage) {
-            case STAGE_1:
-                startFightWithSlime();
-                break;
-            case STAGE_2:
-                startFightWithOrc();
-                break;
-            case STAGE_3:
-                foundGrimoire();
-                break;
-            case STAGE_4:
-                startFightWithKarasu();
-                break;   
-            case STAGE_5:
-                startFightWithGolem();
-                break;       
+            case STAGE_1 -> startFightWithSlime();
+            case STAGE_2 -> startFightWithOrc();
+            case STAGE_3 -> foundGrimoire();
+            case STAGE_4 -> startFightWithKarasu();
+            case STAGE_5 -> startFightWithGolem();  
+            case STAGE_END -> endGame();
         }
     }
     
 
     private void updateStage() {
         switch (currentStage) {
-            case STAGE_1:
-                currentStage = Stage.STAGE_2;
-                break;
-            case STAGE_2:
-                currentStage = Stage.STAGE_3;
-                break;
-            case STAGE_3:
-                currentStage = Stage.STAGE_4;
-                break;
-            case STAGE_4:
-                currentStage = Stage.STAGE_5;
-                break;
-            case STAGE_5:
-                break;
+            case STAGE_1 -> currentStage = Stage.STAGE_2;
+            case STAGE_2 -> currentStage = Stage.STAGE_3;
+            case STAGE_3 -> currentStage = Stage.STAGE_4;
+            case STAGE_4 -> currentStage = Stage.STAGE_5;
+            case STAGE_5 -> currentStage = Stage.STAGE_END;
+            case STAGE_END -> {}
+        }
+    }
+
+    private void isPlayerDead(){
+        if (player.getHP() <= 0) {
+            delayAndExecute(3800, () -> {
+                layeredPane.revalidate();
+                layeredPane.repaint();
+
+                JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(layeredPane);
+
+                player.wizardPanel.setVisible(false);
+                currentEnemy.mobPanel.setVisible(false);
+                synopsisTextArea.setVisible(false);
+                backgroundBattleText.setVisible(true);
+
+                choice1.setVisible(true);
+                choice2.setVisible(false);
+                choice3.setVisible(false);
+                choice4.setVisible(false);
+
+                choice1.setText("Kembali..");
+                String deathText = "Player " + playerName + " Kamu telah dikalahkan oleh musuh " + currentEnemy.mobType + "!\n\nTerima Kasih Telah Berjuang di Inersia.";
+                displayTextWithDelay(deathText, battleTextArea, 20, () -> {
+                    choice1.setVisible(true);
+                    choice1.addActionListener(e -> {
+                        if (currentFrame != null) {
+                            currentFrame.dispose(); // Menutup frame saat ini
+                        }
+                        new Game();
+                    });  
+                });
+            });
         }
     }
 
@@ -486,6 +498,35 @@ public class Game {
             showBattleOptions(currentEnemy);
         });
     }
+
+    private void endGame() {
+        // Tutup game
+        player.wizardPanel.setVisible(false);
+        currentEnemy.mobPanel.setVisible(false);
+        backgroundBattleText.setVisible(false);
+        synopsisTextArea.setVisible(true);
+        choice1.setVisible(false);
+        choice2.setVisible(false);
+        choice3.setVisible(false);
+        choice4.setVisible(false);
+        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(layeredPane);
+
+        String penutup = """
+                          Terima Kasih Telah Berjuang di Inersia.
+                          Negeri Inersia Akhirnya Bebas Dari Kekacauan!""";
+        displayTextWithDelay(penutup, synopsisTextArea, 10, () -> {
+            delayAndExecute(2000,() -> {
+                choice1.setVisible(true);
+                choice1.setText("Kembali..");
+                choice1.addActionListener(e -> {
+                    if (currentFrame != null) {
+                        currentFrame.dispose(); // Menutup frame saat ini
+                    }
+                    new Game();
+                });
+            });
+        });
+    }
     
     private void showNonBattleOption(){
         choice1.setText("Ambil");
@@ -499,12 +540,9 @@ public class Game {
             choice1.setVisible(false);
             delayAndExecute(2000, () -> {
                 choice1.setVisible(true);
-                choice1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        ultimateLabel.setVisible(false);
-                        battleOption();
-                    }
+                choice1.addActionListener((ActionEvent event) -> {
+                    ultimateLabel.setVisible(false);
+                    battleOption();
                 });
             });
         });
@@ -623,24 +661,28 @@ public class Game {
                 delayAndExecute(1500, () -> {
                     player.reduceHP(((Slime) enemy).getAtk());
                     hpTextLabel.setText(" " + player.getHP());
+                    isPlayerDead();
                 });
             } else if (enemy instanceof Orc && ((Orc) enemy).getHP() > 0) {
                 ((Orc) enemy).playWalkLeftAnimation();
                 delayAndExecute(1500, () -> {
                     player.reduceHP(((Orc) enemy).getAtk());
                     hpTextLabel.setText(" " + player.getHP());
+                    isPlayerDead();
                 });
             } else if (enemy instanceof Karasu && ((Karasu) enemy).getHP() > 0) {
                 ((Karasu) enemy).playWalkLeftAnimation();
                 delayAndExecute(1500, () -> {
                     player.reduceHP(((Karasu) enemy).getAtk());
                     hpTextLabel.setText(" " + player.getHP());
+                    isPlayerDead();
                 });
             } else if (enemy instanceof Golem && ((Golem) enemy).getHP() > 0) {
                 ((Golem) enemy).playWalkLeftAnimation();
                 delayAndExecute(1500, () -> {
                     player.reduceHP(((Golem) enemy).getAtk());
                     hpTextLabel.setText(" " + player.getHP());
+                    isPlayerDead();
                 });
             }
         });
@@ -755,6 +797,7 @@ public class Game {
             currentEnemy instanceof Slime ? "Kamu Telah Mempelajari Spell Book. Ingin melanjutkan ke stage selanjutnya?" :
             currentEnemy instanceof Orc ? "Kamu Telah Mengalahkan Orc ! Ingin melanjutkan ke stage berikutnya?" :
             currentEnemy instanceof Karasu ? "Karasu telah dikalahkan! Ingin melanjutkan ke stage berikutnya? " :
+            currentEnemy instanceof Golem ? "Golem telah dikalahkan!" :
             ""
         );
         
